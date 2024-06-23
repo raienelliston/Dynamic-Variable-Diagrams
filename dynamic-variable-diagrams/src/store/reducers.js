@@ -3,9 +3,9 @@ import { ADD_NODE, UPDATE_NODE } from './actions';
 
 const initialState = {
   nodes: [
-    { id: 1, name: 'Node 1', x: 100, y: 100 },
-    { id: 2, name: 'Node 2', x: 200, y: 100 },
-    { id: 3, name: 'Node 3', x: 400, y: 200 },
+    { id: 1, name: 'Node 1', text: "this is a node", x: 100, y: 100, changableVars: [], dependentVars: []},
+    { id: 2, name: 'Node 2', text: "", x: 200, y: 100, changableVars: [], dependentVars: [] },
+    { id: 3, name: 'Node 3', text: "", x: 400, y: 200, changableVars: [], dependentVars: [] },
 ],
 };
 
@@ -23,6 +23,7 @@ const diagramReducer = (state = initialState, action) => {
           node.id === action.payload.id ? action.payload : node
         ),
       };
+      console.log(state);
     default:
       return state;
   }
