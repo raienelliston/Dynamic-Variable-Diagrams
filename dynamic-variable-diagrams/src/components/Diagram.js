@@ -20,7 +20,7 @@ const Diagram = () => {
   const dispatch = useDispatch();
 
   const [, drop] = useDrop({
-    accept: ItemTypes.NODE,
+    accept: ItemTypes.CONTAINER,
     drop: (item, monitor) => {
         const delta = monitor.getDifferenceFromInitialOffset();
         const x = Math.round(item.x + delta.x);

@@ -27,7 +27,7 @@ const Container = ({ id, name, text, x, y }) => {
   const dispatch = useDispatch();
 
   const [ { isDragging } , drag] = useDrag({
-    type: ItemTypes.NODE,
+    type: ItemTypes.CONTAINER,
     item: { id, name, x, y },
     collect: (monitor) => ({
         isDragging: monitor.isDragging(),
