@@ -1,8 +1,8 @@
 // src/components/Diagram.js
 import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import Node from './Node';
-import { addNode, updateNode } from '../store/actions';
+import Container from './Container';
+import { addContainer, updateContainer } from '../store/actions';
 import styled from 'styled-components';
 import { useState } from 'react';
 import { useDrop } from 'react-dnd';
@@ -16,7 +16,7 @@ const DiagramContainer = styled.div`
 `;
 
 const Diagram = () => {
-  const nodes = useSelector((state) => state.diagram.nodes);
+  const containers = useSelector((state) => state.diagram.containers);
   const dispatch = useDispatch();
 
   const [, drop] = useDrop({
@@ -25,21 +25,21 @@ const Diagram = () => {
         const delta = monitor.getDifferenceFromInitialOffset();
         const x = Math.round(item.x + delta.x);
         const y = Math.round(item.y + delta.y);
-        dispatch(updateNode({ id: item.id, name: item.name, x, y }));
+        dispatch(updateContainer({ id: item.id, name: item.name, x, y }));
     },
   });
 
-  const handleAddNode = () => {
-    const newNode = { id: nodes.length + 1, name: `Node ${nodes.length + 1}`, x:0, y:0 };
-    dispatch(addNode(newNode));
+  const handleAddContainer = () => {
+    const newContainer = { id: containers.length + 1, name: `Container ${containers.length + 1}`, x:0, y:0 };
+    dispatch(addContainer(newContainer));
   };
 
   return (
     <DiagramContainer ref={drop}>
-      {nodes.map((node) => (
-        <Node key={node.id} {...node} />
+      {containers.map((container) => (
+        <Container key={container.id} {...container} />
       ))}
-      <button onClick={handleAddNode}>Add Node</button>
+      <button onClick={handleAddContainer}>Add Container</button>
     </DiagramContainer>
   );
 };

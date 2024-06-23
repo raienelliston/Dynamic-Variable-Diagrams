@@ -1,14 +1,14 @@
 // src/App.js
 import React from 'react';
 import Diagram from './components/Diagram';
-import NodeModifier from './components/NodeModifier';
+import ContainerModifier from './components/ContainerModifier';
 import './App.css';
 
 function App() {
   return (
     <div className="App">
         <Diagram />
-        <NodeModifier />
+        <ContainerModifier />
     </div>
   );
 }

@@ -1,13 +1,13 @@
-// src/components/Node.js
+// src/components/Container.js
 import React from 'react';
 import { useDispatch } from 'react-redux';
-import { updateNode } from '../store/actions';
+import { updateContainer } from '../store/actions';
 import { useDrag } from 'react-dnd';
 import { ItemTypes } from './ItemTypes';
 import styled from 'styled-components';
-import './Node.css';
+import './Container.css';
 
-const NodeContainer = styled.div`
+const ContainerContainer = styled.div`
   width: auto;
   min-width: 100px;
   height: auto;
@@ -23,7 +23,7 @@ const NodeContainer = styled.div`
   );
 `;
 
-const Node = ({ id, name, text, x, y }) => {
+const Container = ({ id, name, text, x, y }) => {
   const dispatch = useDispatch();
 
   const [ { isDragging } , drag] = useDrag({
@@ -35,14 +35,14 @@ const Node = ({ id, name, text, x, y }) => {
   });
 
   return (
-    <NodeContainer ref={drag} x={x} y={y} style={{ opacity: isDragging ? 0.5 : 1 }}>
+    <ContainerContainer ref={drag} x={x} y={y} style={{ opacity: isDragging ? 0.5 : 1 }}>
       <div style={{ margin: '5px' }}>
         <h1> {name} </h1> 
         {id}
         {text}
       </div>
-    </NodeContainer>
+    </ContainerContainer>
   );
 };
 
-export default Node;
+export default Container;
