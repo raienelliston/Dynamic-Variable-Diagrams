@@ -2,6 +2,8 @@
 import React from 'react';
 import { useDispatch } from 'react-redux';
 import { updateNode } from '../store/actions';
+import { useDrag } from 'react-dnd';
+import { ItemTypes } from './ItemTypes';
 import styled from 'styled-components';
 
 const NodeContainer = styled.div`
@@ -14,17 +16,23 @@ const NodeContainer = styled.div`
   justify-content: center;
   cursor: pointer;
   position: absolute;
-  transform: translate(
-    var(--node-x, 0px),
-    var(--node-y, 0px)
+  transform: translate(${(props) => props.x}px, ${(props) => props.y}px);
   );
 `;
 
 const Node = ({ id, name, x, y }) => {
   const dispatch = useDispatch();
 
+  const [ { isDragging } , drag] = useDrag({
+    type: ItemTypes.NODE,
+    item: { id, x, y },
+    collect: (monitor) => ({
+        isDragging: monitor.isDragging(),
+      }),
+  });
+
   return (
-    <NodeContainer style={{ '--node-x': `${x}px`, '--node-y': `${y}px` }}>
+    <NodeContainer ref={drag} x={x} y={y} isDragging={isDragging} style={{ opacity: isDragging ? 0.5 : 1 }}>
       {name}
     </NodeContainer>
   );
