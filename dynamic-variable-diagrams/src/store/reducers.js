@@ -1,15 +1,38 @@
 // src/store/reducers.js
 import { ADD_CONTAINER, UPDATE_CONTAINER, DELETE_CONTAINER, ADD_RELATION, UPDATE_RELATION, DELETE_RELATION, ADD_VARIABLE, UPDATE_VARIABLE, DELETE_VARIABLE, ADD_NODE_TO_CONTAINER, DELETE_NODE_FROM_CONTAINER, SELECT_ITEM } from './actions';
 
-const initialState = {
-  containers: [
-    { id: 1, name: 'Container 1', text: "this is a container", x: 100, y: 100, changableVars: [], dependentVars: []},
-    { id: 2, name: 'Container 2', text: "", x: 200, y: 100, changableVars: [], dependentVars: [] },
-    { id: 3, name: 'Container 3', text: "", x: 400, y: 200, changableVars: [], dependentVars: [] },
-],
-  relations: [],
-  variables: [],
-};
+function checkSavedDiagram() {
+  if (localStorage.getItem('diagram')) {
+    const diagram = JSON.parse(localStorage.getItem('diagram'));
+    return( {
+      containers: diagram.containers,
+      relations: diagram.relations,
+      variables: diagram.variables,
+    });
+  } else {
+    const diagram = {
+      containers: [
+        { id: 1, name: 'Container 1', text: "this is a container", x: 100, y: 100, changableVars: [], dependentVars: []},
+        { id: 2, name: 'Container 2', text: "", x: 200, y: 100, changableVars: [], dependentVars: [] },
+        { id: 3, name: 'Container 3', text: "", x: 400, y: 200, changableVars: [], dependentVars: [] },
+    ],
+      relations: [],
+      variables: [],
+    };
+    localStorage.setItem('diagram', JSON.stringify(diagram));
+    return ( {
+      containers: [
+        { id: 1, name: 'Container 1', text: "this is a container", x: 100, y: 100, changableVars: [], dependentVars: []},
+        { id: 2, name: 'Container 2', text: "", x: 200, y: 100, changableVars: [], dependentVars: [] },
+        { id: 3, name: 'Container 3', text: "", x: 400, y: 200, changableVars: [], dependentVars: [] },
+    ],
+      relations: [],
+      variables: [],
+    });
+  }
+}
+
+const initialState = checkSavedDiagram();
 
 const diagramReducer = (state = initialState, action) => {
   switch (action.type) {
