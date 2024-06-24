@@ -25,6 +25,7 @@ const ContainerContainer = styled.div`
 
 const Container = ({ id, name, text, x, y }) => {
   const dispatch = useDispatch();
+  const selected = useSelector((state) => state.diagram.selectedItem);
 
   const [ { isDragging } , drag] = useDrag({
     type: ItemTypes.CONTAINER,

@@ -10,6 +10,7 @@ export const UPDATE_VARIABLE = 'UPDATE_VARIABLE';
 export const DELETE_VARIABLE = 'DELETE_VARIABLE';
 export const ADD_NODE_TO_CONTAINER = 'ADD_NODE_TO_CONTAINER';
 export const DELETE_NODE_FROM_CONTAINER = 'DELETE_NODE_FROM_CONTAINER';
+export const SELECT_ITEM = 'SELECT_ITEM';
 
 export const addContainer = (container) => ({
   type: ADD_CONTAINER,
@@ -64,4 +65,9 @@ export const addNodeToContainer = (node) => ({
 export const deleteNodeFromContainer = (node) => ({
   type: DELETE_NODE_FROM_CONTAINER,
   payload: node,
+});
+
+export const selectItem = (item) => ({
+  type: SELECT_ITEM,
+  payload: item,
 });

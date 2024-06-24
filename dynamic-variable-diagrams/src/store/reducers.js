@@ -1,5 +1,5 @@
 // src/store/reducers.js
-import { ADD_CONTAINER, UPDATE_CONTAINER, DELETE_CONTAINER, ADD_RELATION, UPDATE_RELATION, DELETE_RELATION, ADD_VARIABLE, UPDATE_VARIABLE, DELETE_VARIABLE, ADD_NODE_TO_CONTAINER, DELETE_NODE_FROM_CONTAINER } from './actions';
+import { ADD_CONTAINER, UPDATE_CONTAINER, DELETE_CONTAINER, ADD_RELATION, UPDATE_RELATION, DELETE_RELATION, ADD_VARIABLE, UPDATE_VARIABLE, DELETE_VARIABLE, ADD_NODE_TO_CONTAINER, DELETE_NODE_FROM_CONTAINER, SELECT_ITEM } from './actions';
 
 const initialState = {
   containers: [
@@ -68,6 +68,11 @@ const diagramReducer = (state = initialState, action) => {
       return state;
     case DELETE_NODE_FROM_CONTAINER:
       return state;
+    case SELECT_ITEM:
+      return {
+        ...state,
+        selected: action.payload,
+      }
     default:
       return state;
   }
