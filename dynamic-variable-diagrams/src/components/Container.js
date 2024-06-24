@@ -2,6 +2,7 @@
 import React from 'react';
 import { useDispatch } from 'react-redux';
 import { updateContainer } from '../store/actions';
+import { useSelector } from 'react-redux';
 import { useDrag } from 'react-dnd';
 import { ItemTypes } from './ItemTypes';
 import styled from 'styled-components';

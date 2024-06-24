@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState }from "react";
 import styled from "styled-components";
 import { useDispatch } from "react-redux";
 import { addContainer } from "../store/actions";
@@ -38,7 +38,6 @@ const LeftMenuBar = styled.div`
     color: white;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
     align-items: center;
     padding: 20px 0;
     pointer-events: fill;
@@ -60,12 +59,21 @@ const RightMenuBar = styled.div`
     pointer-events: fill;
 `;
 
+const Form = styled.form`
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 0;
+    pointer-events: fill;
+`;
+
 const Overlay = () => {
     const containers = useSelector((state) => state.diagram.containers);
     const dispatch = useDispatch();
-
+    var newName = '';
     const handleAddContainer = () => {
-        const newContainer = { id: containers.length + 1, name: `Container ${containers.length + 1}`, x:0, y:0 };
+        const newContainer = { id: containers.length + 1, name: newName , x:200, y:200 };
         dispatch(addContainer(newContainer));
       };
 
@@ -78,8 +86,10 @@ const Overlay = () => {
             </div>
         );
     };
-    
 
+    const changeNewName = (event) => {
+        newName = event.target.value;
+    };
 
     return (
         <OverlayContainer>
@@ -88,6 +98,7 @@ const Overlay = () => {
                 <div>File Edit View</div>
             </TopMenuBar>
             <LeftMenuBar>
+                <input type="text" onChange={changeNewName} placeholder="Container Name" />
                 <button onClick={handleAddContainer}>Add Container</button>
             </LeftMenuBar>
             <RightMenuBar>
