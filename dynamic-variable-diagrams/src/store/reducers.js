@@ -1,5 +1,5 @@
 // src/store/reducers.js
-import { ADD_CONTAINER, UPDATE_CONTAINER, DELETE_CONTAINER, ADD_RELATION, UPDATE_RELATION, DELETE_RELATION, ADD_VARIABLE, UPDATE_VARIABLE, DELETE_VARIABLE, ADD_NODE_TO_CONTAINER, DELETE_NODE_FROM_CONTAINER, SELECT_ITEM } from './actions';
+import { ADD_CONTAINER, UPDATE_CONTAINER, DELETE_CONTAINER, ADD_RELATION, UPDATE_RELATION, DELETE_RELATION, ADD_VARIABLE, UPDATE_VARIABLE, DELETE_VARIABLE, ADD_NODE_TO_CONTAINER, DELETE_NODE_FROM_CONTAINER, SELECT_ITEM, EVALUATE_RELATIONS, EVALUATE_ALL_RELATIONS } from './actions';
 
 function checkSavedDiagram() {
   if (localStorage.getItem('diagram')) {
@@ -13,12 +13,23 @@ function checkSavedDiagram() {
   } else {
     const diagram = {
       containers: [
-        { id: 1, name: 'Container 1', text: "this is a container", x: 100, y: 100, changableVars: [], dependentVars: []},
-        { id: 2, name: 'Container 2', text: "", x: 200, y: 100, changableVars: [], dependentVars: [] },
-        { id: 3, name: 'Container 3', text: "", x: 400, y: 200, changableVars: [], dependentVars: [] },
+        { id: 0, name: 'Container 1', text: "this is a container", x: 100, y: 100, variables: [], relations: []},
+        { id: 1, name: 'Container 2', text: "", x: 200, y: 100, variables: [1,2,3], relations: [0,1]},
+        { id: 2, name: 'Container 3', text: "", x: 400, y: 200, variables: [1,5,3], relations: [2]},
     ],
-      relations: [],
-      variables: [],
+      relations: [
+        { id: 0, name: 'Relation 1', formula: "variables[1] + variables[2]", value: 0},
+        { id: 1, name: 'Relation 2', formula: "varibles[1] * relations[0]", value: 0},
+        { id: 2, name: 'Relation 3', formula: "relations[1] - variables[5]", value: 0},
+      ],
+      variables: [
+        { id: 0, name: 'Variable 1', value: 1},
+        { id: 1, name: 'Variable 2', value: 2},
+        { id: 2, name: 'Variable 3', value: 3},
+        { id: 3, name: 'Variable 4', value: 4},
+        { id: 4, name: 'Variable 5', value: 5},
+        { id: 5, name: 'Variable 6', value: 6},
+      ],
       selected: null,
     };
     localStorage.setItem('diagram', JSON.stringify(diagram));
@@ -27,6 +38,31 @@ function checkSavedDiagram() {
 }
 
 const initialState = checkSavedDiagram();
+
+const evaluateFormula = (formula, variables, relations) => {
+  try {
+    const func = new Function('variables', 'relations', `return ${formula};`);
+    return func(variables, relations);
+  } catch (error) {
+    console.error("Error evaluating formula: ", formula, error);
+    return null;
+  }
+};
+
+const evaluateAllRelations = (relations, variables) => {
+  const updatedRelations = {};
+
+  for (const [id, relation] of Object.entries(relations)) {
+    const dependentVariables = relation.dependentVariableIds.reduce((acc, varId) => {
+      acc[varId] = variables[varId];
+      return acc;
+    }, {});
+
+    updatedRelations[id] = evaluateFormula(relation.formula, variables, relations);
+  }
+
+  return updatedRelations;
+};
 
 const diagramReducer = (state = initialState, action) => {
   switch (action.type) {
@@ -90,6 +126,24 @@ const diagramReducer = (state = initialState, action) => {
         ...state,
         selected: action.payload,
       }
+    case EVALUATE_RELATIONS:
+      const updatedRelations = {};
+      for (const [id, relation] of Object.entries(state.relations)) {
+        const dependentVariables = relation.dependentVariableIds.reduce((acc, varId) => {
+          acc[varId] = state.variables[varId];
+          return acc;
+        }, {});
+        updatedRelations[id] = evaluateFormula(relation.formula, state.variables, state.relations);
+      }
+      return {
+        ...state,
+        relations: updatedRelations,
+      };
+    case EVALUATE_ALL_RELATIONS:
+      return {
+        ...state,
+        relations: evaluateAllRelations(state.relations, state.variables),
+      };
     default:
       return state;
   }

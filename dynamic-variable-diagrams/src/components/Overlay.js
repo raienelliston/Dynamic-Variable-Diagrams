@@ -86,8 +86,8 @@ const Overlay = () => {
             const selectedContainer = containers.find((container) => container.id === selected);
             console.log(selected);
             if (selectedContainer && newName) {
-                console.log(JSON.stringify(selectedContainer));
-              dispatch(updateContainer({ ...selectedContainer.id, name: newName }));
+                console.log(selectedContainer.id + newName);
+              dispatch(updateContainer({ ...selectedContainer, name: newName }));
             }
 
         };
