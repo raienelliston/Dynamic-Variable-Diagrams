@@ -1,7 +1,7 @@
 import React, { useState }from "react";
 import styled from "styled-components";
 import { useDispatch } from "react-redux";
-import { addContainer } from "../store/actions";
+import { addContainer, updateContainer } from "../store/actions";
 import { useSelector } from "react-redux";
 
 const OverlayContainer = styled.div`
@@ -53,7 +53,6 @@ const RightMenuBar = styled.div`
     color: white;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
     align-items: center;
     padding: 20px 0;
     pointer-events: fill;
@@ -71,6 +70,7 @@ const Form = styled.form`
 const Overlay = () => {
     const containers = useSelector((state) => state.diagram.containers);
     const dispatch = useDispatch();
+    const selected = useSelector((state) => state.diagram.selected);
     var newName = '';
     const handleAddContainer = () => {
         const newContainer = { id: containers.length + 1, name: newName , x:200, y:200 };
@@ -78,11 +78,34 @@ const Overlay = () => {
       };
 
     const EditContainer = () => {
+
+        const [ newName, setNewName ] = useState('');
+
+        const handleUpdateContainer = () => {
+
+            const selectedContainer = containers.find((container) => container.id === selected);
+            console.log(selected);
+            if (selectedContainer && newName) {
+                console.log(JSON.stringify(selectedContainer));
+              dispatch(updateContainer({ ...selectedContainer.id, name: newName }));
+            }
+
+        };
+
+        const onChange = (event) => {
+            setNewName(event.target.value);
+        };
+
         return (
             <div>
-                <input type="text" placeholder="Container Name" />
-                <button>Save</button>
-                <button>Delete</button>
+                <div>
+                    <input
+                        type="text"
+                        value={newName}
+                        onChange={(e) => onChange(e)}
+                    />
+                    <button onClick={handleUpdateContainer}>Update Container</button>
+                </div>
             </div>
         );
     };
@@ -90,6 +113,8 @@ const Overlay = () => {
     const changeNewName = (event) => {
         newName = event.target.value;
     };
+
+    console.log(selected);
 
     return (
         <OverlayContainer>
@@ -103,6 +128,7 @@ const Overlay = () => {
             </LeftMenuBar>
             <RightMenuBar>
                 <EditContainer />
+                Selected Item: {selected}
             </RightMenuBar>
         </OverlayContainer>
     );

@@ -8,6 +8,7 @@ function checkSavedDiagram() {
       containers: diagram.containers,
       relations: diagram.relations,
       variables: diagram.variables,
+      selected: null,
     });
   } else {
     const diagram = {
@@ -18,17 +19,10 @@ function checkSavedDiagram() {
     ],
       relations: [],
       variables: [],
+      selected: null,
     };
     localStorage.setItem('diagram', JSON.stringify(diagram));
-    return ( {
-      containers: [
-        { id: 1, name: 'Container 1', text: "this is a container", x: 100, y: 100, changableVars: [], dependentVars: []},
-        { id: 2, name: 'Container 2', text: "", x: 200, y: 100, changableVars: [], dependentVars: [] },
-        { id: 3, name: 'Container 3', text: "", x: 400, y: 200, changableVars: [], dependentVars: [] },
-    ],
-      relations: [],
-      variables: [],
-    });
+    return ( diagram );
   }
 }
 

@@ -1,7 +1,7 @@
 // src/components/Container.js
 import React from 'react';
 import { useDispatch } from 'react-redux';
-import { updateContainer } from '../store/actions';
+import { updateContainer, selectItem } from '../store/actions';
 import { useSelector } from 'react-redux';
 import { useDrag } from 'react-dnd';
 import { ItemTypes } from './ItemTypes';
@@ -36,8 +36,12 @@ const Container = ({ id, name, text, x, y }) => {
       }),
   });
 
+  const handleClick = () => {
+    dispatch(selectItem(id));
+  };
+
   return (
-    <ContainerContainer ref={drag} x={x} y={y} style={{ opacity: isDragging ? 0.5 : 1 }}>
+    <ContainerContainer onClick={handleClick} ref={drag} x={x} y={y} style={{ opacity: isDragging ? 0.5 : 1 }}>
       <div style={{ margin: '5px' }}>
         <h1> {name} </h1> 
         {id}
