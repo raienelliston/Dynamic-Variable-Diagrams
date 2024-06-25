@@ -11,7 +11,7 @@ export const stateChangeMiddleware = (store) => (next) => (action) => {
   const result = next(action);
   const newState = store.getState();
   console.log('New state:', newState);
-  var changed;
+  var changed = false;
 
   // Evaluate all relations when a container, relation, or variable is added or updated
   if (action.type !== 'EVALUATE_RELATIONS' && action.type !== 'EVALUATE_ALL_RELATIONS') {
@@ -86,7 +86,7 @@ export const stateChangeMiddleware = (store) => (next) => (action) => {
   }
   //Delete 
 
-  if (changed === undefined) {
+  if (changed === false) {
     saveDiagram(newState);
   }
 

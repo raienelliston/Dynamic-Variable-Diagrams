@@ -1,20 +1,26 @@
 const evaluateCustomFormula = (formula, variables, relations) => {
     let evaluatedFormula = formula;
   
-    Object.keys(variables).forEach((key) => {
-      const regex = new RegExp(`variables\\[${key}\\]`, 'g');
-      evaluatedFormula = evaluatedFormula.replace(regex, variables[key].value);
+    console.log("variables: ", variables);
+    console.log("relations: ", relations);
+  
+    variables.forEach((variable) => {
+      const regex = new RegExp(`variables\\[${variable.id}\\]`, 'g');
+      evaluatedFormula = evaluatedFormula.replace(regex, variable.value);
     });
   
-    Object.keys(relations).forEach((key) => {
-      const regex = new RegExp(`relations\\[${key}\\]`, 'g');
-      evaluatedFormula = evaluatedFormula.replace(regex, relations[key].value);
+    relations.forEach((relation) => {
+      const regex = new RegExp(`relations\\[${relation.id}\\]`, 'g');
+      evaluatedFormula = evaluatedFormula.replace(regex, relation.value);
     });
+  
+    console.log(variables, relations, evaluatedFormula);
   
     try {
+      console.log("evaluating formula: ", formula);
       const result = eval(evaluatedFormula);
-
-      if (result = Infinity) {
+  
+      if (result === Infinity) {
         console.log("Infinity");
         return "Infinity";
       }
@@ -24,5 +30,5 @@ const evaluateCustomFormula = (formula, variables, relations) => {
       return "ERROR";
     }
   };
-
-export default evaluateCustomFormula;
+  
+  export default evaluateCustomFormula;

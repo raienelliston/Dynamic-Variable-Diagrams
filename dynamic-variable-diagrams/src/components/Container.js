@@ -31,8 +31,8 @@ const Container = ({ id, name, text, x, y, variableIds, relationIds }) => {
   const [contextMenu, setContextMenu] = useState(null);
   const allVariables = useSelector((state) => state.diagram.variables);
   const allRelations = useSelector((state) => state.diagram.relations);
-  const variables = variableIds.map((id) => allVariables.find((variable) => variable.Id === id));
-  const relations = relationIds.map((id) => allRelations[id]);
+  const variables = variableIds.map(id => allVariables.find(variable => variable.id === id));
+  const relations = relationIds.map(id => allRelations.find(relation => relation.id === id));
 
   console.log('all variables', allVariables);
 
@@ -58,15 +58,17 @@ const Container = ({ id, name, text, x, y, variableIds, relationIds }) => {
     dispatch(selectItem(id));
   };
 
-  const handleContextMenu = (event, type, id) => {
+  const handleContextMenu = (event, type, object) => {
     event.preventDefault();
     console.log('right click');
 
+    console.log('type', type, 'id', id);
+
     const deleteItem = (type) => {
       if (type === 'relation') {
-        dispatch({ type: 'DELETE_RELATION', payload: { id: id } });;
+        dispatch({ type: 'DELETE_RELATION', payload: { id: object.id } });;
       } else if (type === 'variable') {
-        dispatch({ type: 'DELETE_VARIABLE', payload: { id: id } });;
+        dispatch({ type: 'DELETE_VARIABLE', payload: { id: object.id } });;
       }
     };
 
@@ -84,17 +86,19 @@ const Container = ({ id, name, text, x, y, variableIds, relationIds }) => {
 
   const Relations = () => {
 
+    
+
     const containerRelations = relations.map((relation) => {
       return (
-        <div key={relation.Id} onContextMenu={(e) => handleContextMenu(e, 'relation', relation.Id)}>
-          {relation.name}
+        <div key={relation.Id} onContextMenu={(e) => handleContextMenu(e, 'relation', relation)}>
+          {relation.name} {" : "} {relation.formula} {" = "} {relation.value}
         </div>
       );
     });
 
     return (
       <div>
-        {containerRelations}
+        {containerRelations} 
       </div>
     );
   };
@@ -102,9 +106,10 @@ const Container = ({ id, name, text, x, y, variableIds, relationIds }) => {
   const Variables = () => {
     
     const containerVariables = variables.map((variable) => {
+      console.log('variable', variable);
       return (
-        <div key={variable.Id} onContextMenu={(e) => handleContextMenu(e, 'variable', variable.Id)}>
-          {variable.name}
+        <div key={variable.Id} onContextMenu={(e) => handleContextMenu(e, 'variable', variable)}>
+          {variable.name} {" : "} {variable.value}
         </div>
       );
     });

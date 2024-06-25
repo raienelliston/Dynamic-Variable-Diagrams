@@ -50,7 +50,7 @@ const evaluateRelation = (relation, variables, relations) => {
 };
 
 const evaluateAllRelations = (relations, variables) => {
-  const updatedRelations = [];
+  var updatedRelations = [];
 
   for (const [num, relation] of Object.entries(relations)) {
     console.log("evaluating relation: ", relation);

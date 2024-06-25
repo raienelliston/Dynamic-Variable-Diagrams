@@ -142,7 +142,7 @@ const Overlay = () => {
 
             console.log(JSON.stringify(container));
             const containerRelations = container.relations.map((relationId) => {
-              const relation = relations[relationId];
+              const relation = relations.find((relation) => relation.id === relationId);
               var value = relation.formula;
 
               for (const [key, variable] of Object.entries(variables)) {
@@ -244,7 +244,7 @@ const Overlay = () => {
             }
             
             const containerVariables = container.variables.map((variableId) => {
-              const variable = variables[variableId];
+              const variable = variables.find((variable) => variable.id === variableId);
               return (
                 <div key={variableId}>
                 {editing === variableId ? (
