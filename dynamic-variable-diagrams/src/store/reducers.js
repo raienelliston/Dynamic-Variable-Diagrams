@@ -19,7 +19,7 @@ function checkSavedDiagram() {
     ],
       relations: [
         { id: 0, name: 'Relation 1', formula: "variables[1] + variables[2]", value: 0},
-        { id: 1, name: 'Relation 2', formula: "varibles[1] * relations[0]", value: 0},
+        { id: 1, name: 'Relation 2', formula: "variables[1] * relations[0]", value: 0},
         { id: 2, name: 'Relation 3', formula: "relations[1] - variables[5]", value: 0},
       ],
       variables: [
@@ -49,16 +49,20 @@ const evaluateFormula = (formula, variables, relations) => {
   }
 };
 
+const evaluateRelation = (relation, variables, relations) => {
+  return ( {
+    id: relation.id,
+    name: relation.name,
+    formula: relation.formula,
+    value: evaluateFormula(relation.formula, variables, relations),
+  } );
+};
+
 const evaluateAllRelations = (relations, variables) => {
   const updatedRelations = {};
 
   for (const [id, relation] of Object.entries(relations)) {
-    const dependentVariables = relation.dependentVariableIds.reduce((acc, varId) => {
-      acc[varId] = variables[varId];
-      return acc;
-    }, {});
-
-    updatedRelations[id] = evaluateFormula(relation.formula, variables, relations);
+    updatedRelations[id] = evaluateRelation(relation, variables, relations);
   }
 
   return updatedRelations;
@@ -131,11 +135,8 @@ const diagramReducer = (state = initialState, action) => {
     case EVALUATE_RELATIONS:
       const updatedRelations = {};
       for (const [id, relation] of Object.entries(state.relations)) {
-        const dependentVariables = relation.dependentVariableIds.reduce((acc, varId) => {
-          acc[varId] = state.variables[varId];
-          return acc;
-        }, {});
-        updatedRelations[id] = evaluateFormula(relation.formula, state.variables, state.relations);
+        console.log("evaluating relation: ", relation);
+        updatedRelations[id] = evaluateRelation("0", state.relations, state.variables);
       }
       return {
         ...state,
