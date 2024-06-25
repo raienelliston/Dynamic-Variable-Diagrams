@@ -31,17 +31,11 @@ const Diagram = () => {
     },
   });
 
-  const handleAddContainer = () => {
-    const newContainer = { id: containers.length, name: `Container ${containers.length + 1}`, x:0, y:0 };
-    dispatch(addContainer(newContainer));
-  };
-
   return (
     <DiagramContainer ref={drop}>
       {containers.map((container) => (
-        <Container key={container.id} {...container} />
+        <Container {...container} variableIds={container.variables} relationIds={container.relations} />
       ))}
-      <button onClick={handleAddContainer}>Add Container</button>
     </DiagramContainer>
   );
 };

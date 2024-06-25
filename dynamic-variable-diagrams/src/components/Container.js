@@ -25,9 +25,14 @@ const ContainerContainer = styled.div`
   );
 `;
 
-const Container = ({ id, name, text, x, y }) => {
+const Container = ({ id, name, text, x, y, variableIds, relationIds }) => {
+  console.log('Container', id, name, x, y, variableIds, relationIds)
   const dispatch = useDispatch();
   const [contextMenu, setContextMenu] = useState(null);
+  const allVariables = useSelector((state) => state.diagram.variables);
+  const allRelations = useSelector((state) => state.diagram.relations);
+  const variables = variableIds.map((id) => allVariables[id]);
+  const relations = relationIds.map((id) => allRelations[id]);
 
   const [ { isDragging } , drag] = useDrag({
     type: ItemTypes.CONTAINER,
@@ -40,6 +45,12 @@ const Container = ({ id, name, text, x, y }) => {
       return { id, name, x, y };
     },
   });
+
+  console.log('Container', id, name, x, y, variableIds, relations);
+
+  if (id === undefined) {
+    return null;
+  }
 
   const handleClick = () => {
     dispatch(selectItem(id));
@@ -70,12 +81,10 @@ const Container = ({ id, name, text, x, y }) => {
   };
 
   const Relations = () => {
-    const relations = useSelector((state) => state.diagram.relations);
-    const container = useSelector((state) => state.diagram.containers[id]);
-    console.log(JSON.stringify(container));
 
-    const containerRelations = container.relations.map((relationId) => {
+    const containerRelations = relations.map((relationId) => {
       const relation = relations[relationId];
+      console.log(relation);
       const value = relation.value;
       return (
         <div key={relationId} onContextMenu={(e) => handleContextMenu(e, 'relation', relationId)}>
@@ -92,13 +101,12 @@ const Container = ({ id, name, text, x, y }) => {
   };
 
   const Variables = () => {
-    const variables = useSelector((state) => state.diagram.variables);
-    const container = useSelector((state) => state.diagram.containers[id]);
-    const containerVariables = container.variables.map((variableId) => {
+    
+    const containerVariables = variables.map((variableId) => {
       const variable = variables[variableId];
       return (
         <div key={variableId} onContextMenu={(e) => handleContextMenu(e, 'variable', variableId)}>
-          {variable.name}{" :"} {variable.value}
+          {variableId}{" :"} {variable.value}
         </div>
       );
     });
@@ -112,7 +120,6 @@ const Container = ({ id, name, text, x, y }) => {
 
   const RelationFormulas = () => {
     
-    const relations = useSelector((state) => state.diagram.relations);
     const container = useSelector((state) => state.diagram.containers[id]);
 
     console.log(JSON.stringify(container));

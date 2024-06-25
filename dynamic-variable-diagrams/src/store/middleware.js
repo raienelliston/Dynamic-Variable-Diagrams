@@ -51,6 +51,46 @@ export const stateChangeMiddleware = (store) => (next) => (action) => {
     }
   }
 
+  // If a container is deleted, change ids of containers to avoid conflicts
+  if (action.type === 'DELETE_CONTAINER') {
+    const containerId = action.payload.id;
+    const container = newState.diagram.containers.find(container => container.id === containerId);
+
+    const newContainers = newState.diagram.containers.map(container => {
+      if (container.id > containerId) {
+        return {
+          ...container,
+          id: container.id - 1,
+        };
+      }
+      return container;
+    });
+
+    const newRelations = newState.diagram.relations.map(relation => {
+      if (container.relations.includes(relation.id)) {
+        return {
+          ...relation,
+          containerId: container.id - 1,
+        };
+      }
+      return relation;
+    });
+
+    const newVariables = newState.diagram.variables.map(variable => {
+      if (container.variables.includes(variable.id)) {
+        return {
+          ...variable,
+          containerId: container.id - 1,
+        };
+      }
+      return variable;
+    });
+
+    newState.diagram.containers = newContainers;
+    newState.diagram.relations = newRelations;
+    newState.diagram.variables = newVariables;
+  }
+
   //Delete container, relation or variable without a name
 
   saveDiagram(newState);

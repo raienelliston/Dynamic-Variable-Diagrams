@@ -52,8 +52,9 @@ const evaluateRelation = (relation, variables, relations) => {
 const evaluateAllRelations = (relations, variables) => {
   const updatedRelations = [];
 
-  for (const [id, relation] of Object.entries(relations)) {
-    updatedRelations[id] = evaluateRelation(relation, variables, relations);
+  for (const [num, relation] of Object.entries(relations)) {
+    console.log("evaluating relation: ", relation);
+    updatedRelations[num] = evaluateRelation(relation, variables, relations);
   }
 
   if (JSON.stringify(updatedRelations) !== JSON.stringify(relations)) {
@@ -82,6 +83,7 @@ const diagramReducer = (state = initialState, action) => {
     case DELETE_CONTAINER:
       return {
         ...state,
+        blank: console.log(action.payload),
         containers: state.containers.filter(container => container.id !== action.payload.id),
       };
     case 'ADD_RELATION':
@@ -104,6 +106,12 @@ const diagramReducer = (state = initialState, action) => {
       return {
         ...state,
         relations: state.relations.filter(relation => relation.id !== action.payload.id),
+        containers: state.containers.map(container => {
+          return {
+            ...container,
+            relations: container.relations.filter(relationId => relationId !== action.payload.id),
+          };
+        }),
       };
     case ADD_VARIABLE:
       return {
@@ -126,6 +134,12 @@ const diagramReducer = (state = initialState, action) => {
       return {
         ...state,
         variables: state.variables.filter(variable => variable.id !== action.payload.id),
+        containers: state.containers.map(container => {
+          return {
+            ...container,
+            variables: container.variables.filter(variableId => variableId !== action.payload.id),
+          };
+        }),
       };
     case ADD_NODE_TO_CONTAINER:
       return state;
