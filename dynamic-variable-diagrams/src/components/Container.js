@@ -31,8 +31,10 @@ const Container = ({ id, name, text, x, y, variableIds, relationIds }) => {
   const [contextMenu, setContextMenu] = useState(null);
   const allVariables = useSelector((state) => state.diagram.variables);
   const allRelations = useSelector((state) => state.diagram.relations);
-  const variables = variableIds.map((id) => allVariables[id]);
+  const variables = variableIds.map((id) => allVariables.find((variable) => variable.Id === id));
   const relations = relationIds.map((id) => allRelations[id]);
+
+  console.log('all variables', allVariables);
 
   const [ { isDragging } , drag] = useDrag({
     type: ItemTypes.CONTAINER,
@@ -46,7 +48,7 @@ const Container = ({ id, name, text, x, y, variableIds, relationIds }) => {
     },
   });
 
-  console.log('Container', id, name, x, y, variableIds, relations);
+  console.log('Container', id, name, x, y, variables, relations);
 
   if (id === undefined) {
     return null;

@@ -13,6 +13,11 @@ const evaluateCustomFormula = (formula, variables, relations) => {
   
     try {
       const result = eval(evaluatedFormula);
+
+      if (result = Infinity) {
+        console.log("Infinity");
+        return "Infinity";
+      }
       return result;
     } catch (error) {
       console.error("Error evaluating formula: ", formula, error);

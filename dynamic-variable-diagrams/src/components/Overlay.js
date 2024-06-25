@@ -99,7 +99,7 @@ const Overlay = () => {
         const variables = useSelector((state) => state.diagram.variables);
         const container = useSelector((state) => state.diagram.containers[selected]);
 
-        if (!selected) {
+        if (selected === null) {
             return null;
         }
 

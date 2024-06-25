@@ -11,10 +11,12 @@ export const stateChangeMiddleware = (store) => (next) => (action) => {
   const result = next(action);
   const newState = store.getState();
   console.log('New state:', newState);
+  var changed;
 
   // Evaluate all relations when a container, relation, or variable is added or updated
   if (action.type !== 'EVALUATE_RELATIONS' && action.type !== 'EVALUATE_ALL_RELATIONS') {
     store.dispatch({ type: 'EVALUATE_ALL_RELATIONS' })
+    var changed = true;
   }
 
   // Check for duplicated containers, relations and variables
@@ -53,33 +55,40 @@ export const stateChangeMiddleware = (store) => (next) => (action) => {
 
   // Remove relations that are not in any container or another relations formula
   if (action.type === 'DELETE_RELATION' || action.type === 'UPDATE_RELATION' || action.type === 'DELETE_CONTAINER') {
-    const updatedRelations = newState.diagram.relations;
+    const foundRelations = []; 
 
     for (const relation of newState.diagram.relations) {
-      let found = false;
-
       for (const container of newState.diagram.containers) {
         if (container.relations.includes(relation.id)) {
-          found = true;
-          break;
+          foundRelations.push(relation.id);
         }
       }
-
-      console.log("Found: ", relation, found)
-
-      if (found) {
-        updatedRelations.splice(relation, 1);
+      if(!foundRelations.includes(relation.id)) {
+        store.dispatch({ type: 'DELETE_RELATION', payload: relation });
+        var changed = true;
       }
     }
 
-    for (const relation of updatedRelations) {
-      store.dispatch({ type: 'DELETE_RELATION', payload: relation });
+    const foundVariables = [];
+
+    for (const variable of newState.diagram.variables) {
+      for (const container of newState.diagram.containers) {
+        if (container.variables.includes(variable.id)) {
+          foundVariables.push(variable.id);
+        }
+      }
+      if(!foundVariables.includes(variable.id)) {
+        store.dispatch({ type: 'DELETE_VARIABLE', payload: variable });
+        var changed = true;
+      }
     }
 
   }
   //Delete 
 
-  saveDiagram(newState);
+  if (changed === undefined) {
+    saveDiagram(newState);
+  }
 
   return result;
 };
