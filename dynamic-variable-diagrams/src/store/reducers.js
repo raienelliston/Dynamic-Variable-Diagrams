@@ -83,8 +83,14 @@ const diagramReducer = (state = initialState, action) => {
     case DELETE_CONTAINER:
       return {
         ...state,
-        blank: console.log(action.payload),
-        containers: state.containers.filter(container => container.id !== action.payload.id),
+        containers: state.containers.filter(container => container.id !== action.payload.id).map((container, index) => {
+          return {
+            ...container,
+            id: index,
+            relations: container.relations.map(relationId => relationId),
+            variables: container.variables.map(variableId => variableId),
+          };
+        }),
       };
     case 'ADD_RELATION':
       return {

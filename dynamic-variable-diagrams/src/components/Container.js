@@ -82,13 +82,10 @@ const Container = ({ id, name, text, x, y, variableIds, relationIds }) => {
 
   const Relations = () => {
 
-    const containerRelations = relations.map((relationId) => {
-      const relation = relations[relationId];
-      console.log(relation);
-      const value = relation.value;
+    const containerRelations = relations.map((relation) => {
       return (
-        <div key={relationId} onContextMenu={(e) => handleContextMenu(e, 'relation', relationId)}>
-          {relation.name}{" :"} {value}
+        <div key={relation.Id} onContextMenu={(e) => handleContextMenu(e, 'relation', relation.Id)}>
+          {relation.name}
         </div>
       );
     });
@@ -102,11 +99,10 @@ const Container = ({ id, name, text, x, y, variableIds, relationIds }) => {
 
   const Variables = () => {
     
-    const containerVariables = variables.map((variableId) => {
-      const variable = variables[variableId];
+    const containerVariables = variables.map((variable) => {
       return (
-        <div key={variableId} onContextMenu={(e) => handleContextMenu(e, 'variable', variableId)}>
-          {variableId}{" :"} {variable.value}
+        <div key={variable.Id} onContextMenu={(e) => handleContextMenu(e, 'variable', variable.Id)}>
+          {variable.name}
         </div>
       );
     });
