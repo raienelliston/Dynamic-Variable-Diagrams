@@ -32,6 +32,10 @@ const Container = ({ id, name, text, x, y }) => {
     collect: (monitor) => ({
         isDragging: monitor.isDragging(),
       }),
+      item: () => {
+      dispatch(selectItem(id));
+      return { id, name, x, y };
+    },
   });
 
   const handleClick = () => {
@@ -108,7 +112,9 @@ const Container = ({ id, name, text, x, y }) => {
         <h1> {name} </h1> 
         {id}
         {text}
+        <h2> Relations </h2>
         <Relations />
+        <h2> Variables </h2>
         <Variables />
         <RelationFormulas />
       </div>

@@ -84,10 +84,13 @@ const diagramReducer = (state = initialState, action) => {
         ...state,
         containers: state.containers.filter(container => container.id !== action.payload.id),
       };
-    case ADD_RELATION:
+    case 'ADD_RELATION':
       return {
         ...state,
-        relations: [...state.relations, action.payload],
+        relations: {
+          ...state.relations,
+          [action.payload.id]: action.payload,
+        },
       };
       case 'UPDATE_RELATION':
         return {

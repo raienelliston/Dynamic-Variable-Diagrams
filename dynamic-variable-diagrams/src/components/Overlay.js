@@ -72,6 +72,7 @@ const Overlay = () => {
     const dispatch = useDispatch();
     const selected = useSelector((state) => state.diagram.selected);
     var newName = '';
+
     const handleAddContainer = () => {
         const newContainer = { id: containers.length + 1, name: newName, text:"" , x:200, y:200, variables: [], relations: []};
         console.log(newContainer);
@@ -80,9 +81,12 @@ const Overlay = () => {
 
     const EditContainer = () => {
 
-        const dispacth = useDispatch();
+        const dispatch = useDispatch();
         const [ newName, setNewName ] = useState('');
         const [ newVariableName, setNewVariableName ] = useState('');
+        const [ newVariableValue, setNewVariableValue ] = useState(1);
+        const [ newRelationName, setNewRelationName ] = useState('');
+        const [ newRelationFormula, setNewRelationFormula ] = useState("1");
         const selectedContainer = containers.find((container) => container.id === selected);
         const relations = useSelector((state) => state.diagram.relations);
         const variables = useSelector((state) => state.diagram.variables);
@@ -120,7 +124,7 @@ const Overlay = () => {
             };
 
             const handleSave = (relationId) => {
-                dispacth(updateRelation({ ...relations[relationId], formula: newFormula }));
+                dispatch(updateRelation({ ...relations[relationId], formula: newFormula }));
                 setEditing(null);
             };
 
@@ -171,16 +175,19 @@ const Overlay = () => {
           }
 
         const handleAddVariable = () => {
-            const newVariable = { id: variables.length, name: newVariableName, value: '1' };
+            console.log(variables)
+            const newVariable = { id: variables.length, name: newVariableName, value: newVariableValue };
             const container = containers.find((container) => container.id === selected);
             console.log(newVariable);
             dispatch(addVariable(newVariable));
             container.variables.push(newVariable.id);
         }
 
-        const onVariableNameChange = (event) => {
-            setNewVariableName(event.target.value);
-        }
+        const handleAddRelation = () => {
+            const newRelation = { id: Object.keys(relations).length, name: newRelationName, formula: newRelationFormula };
+            dispatch(addRelation(newRelation));
+            dispatch(updateContainer({ ...selectedContainer, relations: [...selectedContainer.relations, newRelation.id] }));
+        };
 
         const Variables = () => {
             const variables = useSelector((state) => state.diagram.variables);
@@ -202,7 +209,7 @@ const Overlay = () => {
             }
 
             const handleSave = (variableId) => {
-                dispacth(updateVariable({ ...variables[variableId], value: newValue }));
+                dispatch(updateVariable({ ...variables[variableId], value: newValue }));
                 setEditing(null);
             }
             
@@ -247,8 +254,14 @@ const Overlay = () => {
                         <button onClick={handleUpdateContainer}>Update Container</button>
                     </div>
                     <div>
-                        <input type="text" value={newVariableName} onChange={(e) => onVariableNameChange(e)} placeholder="Variable Name" />
+                        <input type="text" value={newVariableName} onChange={(e) => setNewVariableName(e.target.value)} placeholder="Variable Name" />
+                        <input type="number" value={newVariableValue} onChange={(e) => setNewVariableValue(e.target.value)} placeholder="Variable Value" />
                         <button onClick={handleAddVariable}>Add Variable</button>
+                    </div>
+                    <div>
+                        <input type="text" value={newRelationName} onChange={(e) => setNewRelationName(e.target.value)} placeholder="Relation Name" />
+                        <input type="text" value={newRelationFormula} onChange={(e) => setNewRelationFormula(e.target.value)} placeholder="Relation Formula" />
+                        <button onClick={handleAddRelation}>Add Relation</button>
                     </div>
                     <RelationFormulas />
                     <Variables />
