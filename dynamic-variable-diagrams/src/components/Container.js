@@ -14,15 +14,47 @@ const ContainerContainer = styled.div`
   min-width: 100px;
   height: auto;
   min-height: 50px;
+  margin: 10px;
   background-color: lightblue;
   border: 1px solid #000;
+  border-radius: 10px;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   position: absolute;
   transform: translate(${(props) => props.x}px, ${(props) => props.y}px);
   );
+`;
+
+const RelationContainer = styled.div`
+  display: inline-block;
+  align-items: center;
+  justify-content: center;
+`;
+
+const Relation = styled.div`
+  display: flex;
+  background-color: lightgreen;
+  padding: 5px;
+  margin: 5px;
+  border-radius: 5px;
+  `;
+
+const VariableContainer = styled.div`
+  display: flex;
+  display: inline-block;
+  margin: 5px;
+  align-items: center;
+  justify-content: center;
+`;
+
+const Variable = styled.div` 
+  display: flex;
+  background-color: lightcoral;
+  padding: 5px;
+  border-radius: 5px;
 `;
 
 const Container = ({ id, name, text, x, y, variableIds, relationIds }) => {
@@ -86,75 +118,55 @@ const Container = ({ id, name, text, x, y, variableIds, relationIds }) => {
 
   const Relations = () => {
 
-    
+    if (relations[0] === undefined) {
+      return (null);
+    }
 
     const containerRelations = relations.map((relation) => {
       return (
-        <div key={relation.Id} onContextMenu={(e) => handleContextMenu(e, 'relation', relation)}>
+        <Relation key={relation.Id} onContextMenu={(e) => handleContextMenu(e, 'relation', relation)}>
           {relation.name} {" : "} {relation.formula} {" = "} {relation.value}
-        </div>
+        </Relation>
       );
     });
 
     return (
-      <div>
+      <RelationContainer>
+        <h2 style={ {margin: "5px"}}> Relations </h2>
         {containerRelations} 
-      </div>
+      </RelationContainer>
     );
   };
 
   const Variables = () => {
+
+    if (variables[0] === undefined) {
+      return (null);
+    }
     
     const containerVariables = variables.map((variable) => {
       console.log('variable', variable);
       return (
-        <div key={variable.Id} onContextMenu={(e) => handleContextMenu(e, 'variable', variable)}>
+        <Variable key={variable.Id} onContextMenu={(e) => handleContextMenu(e, 'variable', variable)}>
           {variable.name} {" : "} {variable.value}
-        </div>
+        </Variable>
       );
     });
 
     return (
-      <div>
+      <VariableContainer>
+        <h2> Variables </h2>
         {containerVariables}
-      </div>
+      </VariableContainer>
     );
   };
 
-  const RelationFormulas = () => {
-    
-    const container = useSelector((state) => state.diagram.containers[id]);
-
-    console.log(JSON.stringify(container));
-    const containerRelations = container.relations.map((relationId) => {
-      const relation = relations[relationId];
-      const value = relation.formula;
-      return (
-        <div key={relationId}>
-          {relation.name}: {value}
-        </div>
-      );
-    });
-
-    return (
-      <div>
-        {containerRelations}
-      </div>
-    );
-  }
-
   return (
     <ContainerContainer onClick={handleClick} ref={drag} x={x} y={y} style={{ opacity: isDragging ? 0.5 : 1 }}>
-      <div style={{ margin: '5px' }}>
         <h1> {name} </h1> 
-        {id}
         {text}
-        <h2> Relations </h2>
         <Relations />
-        {/* <RelationFormulas /> */}
-        <h2> Variables </h2>
         <Variables />
-      </div>
       {contextMenu && (
         <ContextMenu
           items={contextMenu.items}

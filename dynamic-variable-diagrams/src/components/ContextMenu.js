@@ -6,13 +6,12 @@ const Menu = styled.div`
   background: whitesmoke;
   border: 1px solid #ccc;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-  z-index: 1000;
+  z-index: 10000;
 `;
 
 const MenuItem = styled.div`
   padding: 8px 16px;
   cursor: pointer;
-
   &:hover {
     background: #f0f0f0;
   }
