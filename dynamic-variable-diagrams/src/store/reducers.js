@@ -50,7 +50,7 @@ const evaluateRelation = (relation, variables, relations) => {
 };
 
 const evaluateAllRelations = (relations, variables) => {
-  const updatedRelations = {};
+  const updatedRelations = [];
 
   for (const [id, relation] of Object.entries(relations)) {
     updatedRelations[id] = evaluateRelation(relation, variables, relations);
@@ -137,7 +137,7 @@ const diagramReducer = (state = initialState, action) => {
         selected: action.payload,
       }
     case EVALUATE_RELATIONS:
-      const updatedRelations = {};
+      const updatedRelations = [];
       for (const [id, relation] of Object.entries(state.relations)) {
         console.log("evaluating relation: ", relation);
         updatedRelations[id] = evaluateRelation("0", state.relations, state.variables);

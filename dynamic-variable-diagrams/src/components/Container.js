@@ -1,10 +1,12 @@
 import React from 'react';
+import { useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { updateContainer, selectItem } from '../store/actions';
+import { updateContainer, selectItem, deleteVariable, deleteRelation } from '../store/actions';
 import { useSelector } from 'react-redux';
 import { useDrag } from 'react-dnd';
 import { ItemTypes } from './ItemTypes';
 import styled from 'styled-components';
+import ContextMenu from './ContextMenu';
 import './Container.css';
 
 const ContainerContainer = styled.div`
@@ -25,6 +27,7 @@ const ContainerContainer = styled.div`
 
 const Container = ({ id, name, text, x, y }) => {
   const dispatch = useDispatch();
+  const [contextMenu, setContextMenu] = useState(null);
 
   const [ { isDragging } , drag] = useDrag({
     type: ItemTypes.CONTAINER,
@@ -42,6 +45,30 @@ const Container = ({ id, name, text, x, y }) => {
     dispatch(selectItem(id));
   };
 
+  const handleContextMenu = (event, type, id) => {
+    event.preventDefault();
+    console.log('right click');
+
+    const deleteItem = (type) => {
+      if (type === 'relation') {
+        dispatch({ type: 'DELETE_RELATION', payload: { id: id } });;
+      } else if (type === 'variable') {
+        dispatch({ type: 'DELETE_VARIABLE', payload: { id: id } });;
+      }
+    };
+
+    setContextMenu({
+      position: { x: event.clientX, y: event.clientY },
+      items: [
+        { label: 'Delete', onClick: () => deleteItem(type) },
+      ],
+    })
+  };
+
+  const handleCloseContextMenu = () => {
+    setContextMenu(null);
+  };
+
   const Relations = () => {
     const relations = useSelector((state) => state.diagram.relations);
     const container = useSelector((state) => state.diagram.containers[id]);
@@ -51,7 +78,7 @@ const Container = ({ id, name, text, x, y }) => {
       const relation = relations[relationId];
       const value = relation.value;
       return (
-        <div key={relationId}>
+        <div key={relationId} onContextMenu={(e) => handleContextMenu(e, 'relation', relationId)}>
           {relation.name}{" :"} {value}
         </div>
       );
@@ -70,7 +97,7 @@ const Container = ({ id, name, text, x, y }) => {
     const containerVariables = container.variables.map((variableId) => {
       const variable = variables[variableId];
       return (
-        <div key={variableId}>
+        <div key={variableId} onContextMenu={(e) => handleContextMenu(e, 'variable', variableId)}>
           {variable.name}{" :"} {variable.value}
         </div>
       );
@@ -118,6 +145,13 @@ const Container = ({ id, name, text, x, y }) => {
         <h2> Variables </h2>
         <Variables />
       </div>
+      {contextMenu && (
+        <ContextMenu
+          items={contextMenu.items}
+          position={contextMenu.position}
+          onClose={handleCloseContextMenu}
+        />
+      )}
     </ContainerContainer>
   );
 };

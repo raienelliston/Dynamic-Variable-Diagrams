@@ -16,7 +16,7 @@ const evaluateCustomFormula = (formula, variables, relations) => {
       return result;
     } catch (error) {
       console.error("Error evaluating formula: ", formula, error);
-      return null;
+      return "ERROR";
     }
   };
 

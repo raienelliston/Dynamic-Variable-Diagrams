@@ -7,10 +7,18 @@ import { Provider } from 'react-redux';
 import store from './store/store';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
+import { useDispatch } from 'react-redux';
+
+const InitializeApp = () => {
+  const dispatch = useDispatch();
+  dispatch({ type: 'INITIALIZE_APP' });
+  return null;
+};
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <Provider store={store}>
+    <InitializeApp />
     <DndProvider backend={HTML5Backend}>
       <App />
     </DndProvider>

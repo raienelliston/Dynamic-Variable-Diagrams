@@ -1,7 +1,7 @@
 import React, { useState }from "react";
 import styled from "styled-components";
 import { useDispatch } from "react-redux";
-import { addContainer, updateContainer, updateRelation, updateVariable, addVariable, addRelation, deleteVariable } from "../store/actions";
+import { addContainer, updateContainer, deleteContainer, updateRelation, updateVariable, addVariable, addRelation, deleteVariable } from "../store/actions";
 import { useSelector } from "react-redux";
 
 const OverlayContainer = styled.div`
@@ -102,7 +102,7 @@ const Overlay = () => {
         if (!selected) {
             return null;
         }
-        
+
         const handleUpdateContainer = () => {
 
             console.log("selected: " + selected);
@@ -276,7 +276,17 @@ const Overlay = () => {
             );
           }
 
-        return (
+          const DeleteContainer = () => {
+            const handleDelete = () => {
+                dispatch(deleteContainer(selected));
+            };
+        
+            return (
+                <button onClick={handleDelete}>Delete Container</button>
+            );
+        }
+
+          return (
             <div>
                 <div>
                     <div>
@@ -295,6 +305,7 @@ const Overlay = () => {
                     </div>
                     <RelationFormulas />
                     <Variables />
+                    <DeleteContainer />
                 </div>
             </div>
         );

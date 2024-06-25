@@ -1,5 +1,3 @@
-
-
 function saveDiagram(newState) {
     const diagram = {
       containers: newState.diagram.containers,
@@ -18,6 +16,7 @@ export const stateChangeMiddleware = (store) => (next) => (action) => {
   if (action.type !== 'EVALUATE_RELATIONS' && action.type !== 'EVALUATE_ALL_RELATIONS') {
     store.dispatch({ type: 'EVALUATE_ALL_RELATIONS' })
   }
+
   // Check for duplicated containers, relations and variables
   if (action.type === 'ADD_CONTAINER' || action.type === 'UPDATE_CONTAINER' || action.type === 'ADD_RELATION' || action.type === 'UPDATE_RELATION' || action.type === 'ADD_VARIABLE' || action.type === 'UPDATE_VARIABLE') {
     const seen = new Set();
@@ -51,6 +50,8 @@ export const stateChangeMiddleware = (store) => (next) => (action) => {
       }
     }
   }
+
+  //Delete container, relation or variable without a name
 
   saveDiagram(newState);
 
