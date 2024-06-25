@@ -52,7 +52,7 @@ const Container = ({ id, name, text, x, y }) => {
       const value = relation.value;
       return (
         <div key={relationId}>
-          {relation.name}: {value}
+          {relation.name}{" :"} {value}
         </div>
       );
     });
@@ -71,7 +71,7 @@ const Container = ({ id, name, text, x, y }) => {
       const variable = variables[variableId];
       return (
         <div key={variableId}>
-          {variable.name}: {variable.value}
+          {variable.name}{" :"} {variable.value}
         </div>
       );
     });
@@ -114,9 +114,9 @@ const Container = ({ id, name, text, x, y }) => {
         {text}
         <h2> Relations </h2>
         <Relations />
+        {/* <RelationFormulas /> */}
         <h2> Variables </h2>
         <Variables />
-        <RelationFormulas />
       </div>
     </ContainerContainer>
   );

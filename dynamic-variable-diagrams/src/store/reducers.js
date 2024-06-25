@@ -15,8 +15,8 @@ function checkSavedDiagram() {
     const diagram = {
       containers: [
         { id: 0, name: 'Container 1', text: "this is a container", x: 100, y: 100, variables: [], relations: []},
-        { id: 1, name: 'Container 2', text: "", x: 200, y: 100, variables: [1,2,3], relations: [0,1]},
-        { id: 2, name: 'Container 3', text: "", x: 400, y: 200, variables: [1,5,3], relations: [2]},
+        { id: 1, name: 'Container 2', text: "", x: 200, y: 100, variables: [1,2], relations: [0,1]},
+        { id: 2, name: 'Container 3', text: "", x: 400, y: 200, variables: [5,3], relations: [2]},
     ],
       relations: [
         { id: 0, name: 'Relation 1', formula: "variables[1] + variables[2]", value: 0},
@@ -92,7 +92,7 @@ const diagramReducer = (state = initialState, action) => {
           [action.payload.id]: action.payload,
         },
       };
-      case 'UPDATE_RELATION':
+    case 'UPDATE_RELATION':
         return {
           ...state,
           relations: {
@@ -109,6 +109,11 @@ const diagramReducer = (state = initialState, action) => {
       return {
         ...state,
         variables: [...state.variables, action.payload],
+        containers: state.containers.map(container =>
+          container.id === action.payload.containerId
+            ? { ...container, variables: [...container.variables, action.payload.id] }
+            : container
+        ),
       };
     case UPDATE_VARIABLE:
       return {

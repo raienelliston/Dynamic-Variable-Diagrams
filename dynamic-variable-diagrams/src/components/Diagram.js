@@ -19,6 +19,8 @@ const Diagram = () => {
   const containers = useSelector((state) => state.diagram.containers);
   const dispatch = useDispatch();
 
+  console.log(containers);
+
   const [, drop] = useDrop({
     accept: ItemTypes.CONTAINER,
     drop: (item, monitor) => {
@@ -30,7 +32,7 @@ const Diagram = () => {
   });
 
   const handleAddContainer = () => {
-    const newContainer = { id: containers.length + 1, name: `Container ${containers.length + 1}`, x:0, y:0 };
+    const newContainer = { id: containers.length, name: `Container ${containers.length + 1}`, x:0, y:0 };
     dispatch(addContainer(newContainer));
   };
 

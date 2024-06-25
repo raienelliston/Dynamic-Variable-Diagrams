@@ -1,7 +1,7 @@
 import React, { useState }from "react";
 import styled from "styled-components";
 import { useDispatch } from "react-redux";
-import { addContainer, updateContainer, updateRelation, updateVariable, addVariable, addRelation } from "../store/actions";
+import { addContainer, updateContainer, updateRelation, updateVariable, addVariable, addRelation, deleteVariable } from "../store/actions";
 import { useSelector } from "react-redux";
 
 const OverlayContainer = styled.div`
@@ -74,12 +74,19 @@ const Overlay = () => {
     var newName = '';
 
     const handleAddContainer = () => {
-        const newContainer = { id: containers.length + 1, name: newName, text:"" , x:200, y:200, variables: [], relations: []};
+
+        if (!newName) {
+            alert('Please enter a name');
+            return;
+        }
+
+        const newContainer = { id: containers.length, name: newName, text:"" , x:200, y:200, variables: [], relations: []};
         console.log(newContainer);
         dispatch(addContainer(newContainer));
       };
 
     const EditContainer = () => {
+
 
         const dispatch = useDispatch();
         const [ newName, setNewName ] = useState('');
@@ -92,6 +99,10 @@ const Overlay = () => {
         const variables = useSelector((state) => state.diagram.variables);
         const container = useSelector((state) => state.diagram.containers[selected]);
 
+        if (!selected) {
+            return null;
+        }
+        
         const handleUpdateContainer = () => {
 
             console.log("selected: " + selected);
@@ -124,6 +135,7 @@ const Overlay = () => {
             };
 
             const handleSave = (relationId) => {
+                
                 dispatch(updateRelation({ ...relations[relationId], formula: newFormula }));
                 setEditing(null);
             };
@@ -175,6 +187,12 @@ const Overlay = () => {
           }
 
         const handleAddVariable = () => {
+
+            if (!newVariableName) {
+                alert('Please enter a name');
+                return;
+            }
+
             console.log(variables)
             const newVariable = { id: variables.length, name: newVariableName, value: newVariableValue };
             const container = containers.find((container) => container.id === selected);
@@ -184,6 +202,12 @@ const Overlay = () => {
         }
 
         const handleAddRelation = () => {
+
+            if (!newRelationName) {
+                alert('Please enter a name');
+                return;
+            }
+
             const newRelation = { id: Object.keys(relations).length, name: newRelationName, formula: newRelationFormula };
             dispatch(addRelation(newRelation));
             dispatch(updateContainer({ ...selectedContainer, relations: [...selectedContainer.relations, newRelation.id] }));
@@ -209,6 +233,12 @@ const Overlay = () => {
             }
 
             const handleSave = (variableId) => {
+                try {
+                    eval(newValue);
+                } catch (e) {
+                    alert('Invalid formula');
+                    return;
+                }
                 dispatch(updateVariable({ ...variables[variableId], value: newValue }));
                 setEditing(null);
             }
