@@ -7,11 +7,11 @@ import styled from 'styled-components';
 import { useState } from 'react';
 import { useDrop } from 'react-dnd';
 import { ItemTypes } from './ItemTypes';
+import { ArcherContainer } from 'react-archer';
 
-const DiagramContainer = styled.div`
+const DiagramWrapper = styled.div`
   width: 100%;
-  height: 90vh;
-  border: 1px solid #ddd;
+  height: 100%;
   position: relative;
 `;
 
@@ -32,11 +32,13 @@ const Diagram = () => {
   });
 
   return (
-    <DiagramContainer ref={drop}>
-      {containers.map((container) => (
+    <DiagramWrapper ref={drop}>
+      <ArcherContainer strokeColor="red" >
+        {containers.map((container) => (
         <Container {...container} variableIds={container.variables} relationIds={container.relations} />
       ))}
-    </DiagramContainer>
+      </ArcherContainer>
+    </DiagramWrapper>
   );
 };
 

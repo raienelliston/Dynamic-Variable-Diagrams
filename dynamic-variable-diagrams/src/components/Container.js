@@ -7,6 +7,7 @@ import { useDrag } from 'react-dnd';
 import { ItemTypes } from './ItemTypes';
 import styled from 'styled-components';
 import ContextMenu from './ContextMenu';
+import { ArcherContainer, ArcherElement } from 'react-archer';
 import './Container.css';
 
 const ContainerContainer = styled.div`
@@ -116,6 +117,12 @@ const Container = ({ id, name, text, x, y, variableIds, relationIds }) => {
     setContextMenu(null);
   };
 
+  const getDependencies = (formula) => {
+    const variableDependencies = [...formula.matchAll(/variables\[(\d+)\]/g)].map(match => match[1]);
+    const relationDependencies = [...formula.matchAll(/relations\[(\d+)\]/g)].map(match => match[1]);
+    return [...variableDependencies, ...relationDependencies];
+  };
+
   const Relations = () => {
 
     if (relations[0] === undefined) {
@@ -123,10 +130,20 @@ const Container = ({ id, name, text, x, y, variableIds, relationIds }) => {
     }
 
     const containerRelations = relations.map((relation) => {
+
+      const dependencies = getDependencies(relation.formula).map(depId => ({
+        targetId: `container-${id}`,
+        targetAnchor: 'top',
+        sourceAnchor: 'bottom',
+        style: { strokeColor: 'red', strokeWidth: 2 },
+      }));
+
       return (
+        <ArcherElement id={`relation-${relation.id}`} relations={dependencies} key={relation.id}>
         <Relation key={relation.Id} onContextMenu={(e) => handleContextMenu(e, 'relation', relation)}>
           {relation.name} {" : "} {relation.formula} {" = "} {relation.value}
         </Relation>
+        </ArcherElement>
       );
     });
 
