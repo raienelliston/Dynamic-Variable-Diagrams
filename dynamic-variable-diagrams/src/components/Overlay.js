@@ -79,12 +79,13 @@ const Overlay = () => {
 
     const EditContainer = () => {
 
+        const dispacth = useDispatch();
         const [ newName, setNewName ] = useState('');
+        const selectedContainer = containers.find((container) => container.id === selected);
 
         const handleUpdateContainer = () => {
 
-            const selectedContainer = containers.find((container) => container.id === selected);
-            console.log(selected);
+            console.log("selected: " + selected);
             if (selectedContainer && newName) {
                 console.log(selectedContainer.id + newName);
               dispatch(updateContainer({ ...selectedContainer, name: newName }));
@@ -96,6 +97,34 @@ const Overlay = () => {
             setNewName(event.target.value);
         };
 
+        const RelationFormulas = () => {
+            const relations = useSelector((state) => state.diagram.relations);
+            const variables = useSelector((state) => state.diagram.variables);
+            const container = useSelector((state) => state.diagram.containers[selected]);
+
+            if (!container) {
+              return null;
+            }
+
+            console.log(JSON.stringify(container));
+            const containerRelations = container.relations.map((relationId) => {
+              const relation = relations[relationId];
+              const value = relation.formula;
+              return (
+                <div key={relationId}>
+                  {relation.name}: {value}
+                </div>
+              );
+            });
+        
+            return (
+              <div>
+                {containerRelations}
+              </div>
+            );
+          }
+
+
         return (
             <div>
                 <div>
@@ -105,6 +134,7 @@ const Overlay = () => {
                         onChange={(e) => onChange(e)}
                     />
                     <button onClick={handleUpdateContainer}>Update Container</button>
+                    <RelationFormulas />
                 </div>
             </div>
         );
@@ -127,8 +157,8 @@ const Overlay = () => {
                 <button onClick={handleAddContainer}>Add Container</button>
             </LeftMenuBar>
             <RightMenuBar>
-                <EditContainer />
                 Selected Item: {selected}
+                <EditContainer />
             </RightMenuBar>
         </OverlayContainer>
     );

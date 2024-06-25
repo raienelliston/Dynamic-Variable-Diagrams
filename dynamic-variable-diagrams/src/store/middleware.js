@@ -18,6 +18,7 @@ export const stateChangeMiddleware = (store) => (next) => (action) => {
       store.dispacth({ type: 'EVALUATE_RELATIONS' })
 
     }
+    
     saveDiagram(newState);
     console.log('New state:', newState);
 

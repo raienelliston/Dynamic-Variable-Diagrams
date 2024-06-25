@@ -71,11 +71,13 @@ const diagramReducer = (state = initialState, action) => {
         ...state,
         containers: [...state.containers, action.payload],
       };
-    case UPDATE_CONTAINER:
+    case 'UPDATE_CONTAINER':
       return {
         ...state,
         containers: state.containers.map(container =>
-          container.id === action.payload.id ? action.payload : container
+          container.id === action.payload.id
+            ? { ...container, ...action.payload }
+            : container
         ),
       };
     case DELETE_CONTAINER:
