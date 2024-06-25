@@ -1,7 +1,7 @@
 import React, { useState }from "react";
 import styled from "styled-components";
 import { useDispatch } from "react-redux";
-import { addContainer, updateContainer } from "../store/actions";
+import { addContainer, updateContainer, updateRelation } from "../store/actions";
 import { useSelector } from "react-redux";
 
 const OverlayContainer = styled.div`
@@ -73,7 +73,8 @@ const Overlay = () => {
     const selected = useSelector((state) => state.diagram.selected);
     var newName = '';
     const handleAddContainer = () => {
-        const newContainer = { id: containers.length + 1, name: newName , x:200, y:200 };
+        const newContainer = { id: containers.length + 1, name: newName, text:"" , x:200, y:200, variables: [], relations: []};
+        console.log(newContainer);
         dispatch(addContainer(newContainer));
       };
 
@@ -101,18 +102,62 @@ const Overlay = () => {
             const relations = useSelector((state) => state.diagram.relations);
             const variables = useSelector((state) => state.diagram.variables);
             const container = useSelector((state) => state.diagram.containers[selected]);
+            const [editing, setEditing] = useState(null);
+            const [newFormula, setNewFormula] = useState('');
 
             if (!container) {
               return null;
             }
 
+            const handleEdit = (relationId, formula) => {
+                setEditing(relationId);
+                setNewFormula(formula);
+            };
+
+            const handleFormulaChange = (event) => {
+                setNewFormula(event.target.value);
+            };
+
+            const handleSave = (relationId) => {
+                dispacth(updateRelation({ ...relations[relationId], formula: newFormula }));
+                setEditing(null);
+            };
+
             console.log(JSON.stringify(container));
             const containerRelations = container.relations.map((relationId) => {
               const relation = relations[relationId];
-              const value = relation.formula;
+              var value = relation.formula;
+
+              for (const [key, variable] of Object.entries(variables)) {
+                const regex = new RegExp(`variables\\[${key}\\]`, 'g');
+                value = value.replace(regex, variable.name);
+              }
+
+              for (const [key, relation] of Object.entries(relations)) {
+                const regex = new RegExp(`relations\\[${key}\\]`, 'g');
+                value = value.replace(regex, relation.name);
+              }
+
               return (
                 <div key={relationId}>
-                  {relation.name}: {value}
+          {editing === relationId ? (
+            <div>
+              {relation.name}:
+              <input
+                type="text"
+                value={newFormula}
+                onChange={handleFormulaChange}
+              />
+              <button onClick={() => handleSave(relationId)}>Save</button>
+            </div>
+          ) : (
+            <div>
+                {relation.name}: 
+              <span onClick={() => handleEdit(relationId, relation.formula)}>
+                {relation.formula}
+              </span>
+            </div>
+            )}
                 </div>
               );
             });
@@ -124,6 +169,27 @@ const Overlay = () => {
             );
           }
 
+        const Variables = () => {
+            const variables = useSelector((state) => state.diagram.variables);
+            const container = useSelector((state) => state.diagram.containers[selected]);
+            if (!container) {
+              return null;
+            }
+            const containerVariables = container.variables.map((variableId) => {
+              const variable = variables[variableId];
+              return (
+                <div key={variableId}>
+                  {variable.name}: {variable.value}
+                </div>
+              );
+            });
+        
+            return (
+              <div>
+                {containerVariables}
+              </div>
+            );
+          }
 
         return (
             <div>
@@ -135,6 +201,7 @@ const Overlay = () => {
                     />
                     <button onClick={handleUpdateContainer}>Update Container</button>
                     <RelationFormulas />
+                    <Variables />
                 </div>
             </div>
         );

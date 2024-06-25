@@ -26,10 +26,7 @@ const ContainerContainer = styled.div`
 
 const Container = ({ id, name, text, x, y }) => {
   const dispatch = useDispatch();
-  const selected = useSelector((state) => state.diagram.selectedItem);
-
-  const container = useSelector((state) => state.diagram.containers[id]);
-
+  
   const [ { isDragging } , drag] = useDrag({
     type: ItemTypes.CONTAINER,
     item: { id, name, x, y },
@@ -44,9 +41,9 @@ const Container = ({ id, name, text, x, y }) => {
 
   const Relations = () => {
     const relations = useSelector((state) => state.diagram.relations);
-    const variables = useSelector((state) => state.diagram.variables);
     const container = useSelector((state) => state.diagram.containers[id]);
     console.log(JSON.stringify(container));
+
     const containerRelations = container.relations.map((relationId) => {
       const relation = relations[relationId];
       const value = relation.value;
@@ -84,9 +81,10 @@ const Container = ({ id, name, text, x, y }) => {
   };
 
   const RelationFormulas = () => {
+    
     const relations = useSelector((state) => state.diagram.relations);
-    const variables = useSelector((state) => state.diagram.variables);
     const container = useSelector((state) => state.diagram.containers[id]);
+
     console.log(JSON.stringify(container));
     const containerRelations = container.relations.map((relationId) => {
       const relation = relations[relationId];

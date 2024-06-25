@@ -1,5 +1,6 @@
 // src/store/reducers.js
 import { ADD_CONTAINER, UPDATE_CONTAINER, DELETE_CONTAINER, ADD_RELATION, UPDATE_RELATION, DELETE_RELATION, ADD_VARIABLE, UPDATE_VARIABLE, DELETE_VARIABLE, ADD_NODE_TO_CONTAINER, DELETE_NODE_FROM_CONTAINER, SELECT_ITEM, EVALUATE_RELATIONS, EVALUATE_ALL_RELATIONS } from './actions';
+import evaluateFormula from './formulaEvaluation';
 
 function checkSavedDiagram() {
   if (localStorage.getItem('diagram')) {
@@ -39,16 +40,6 @@ function checkSavedDiagram() {
 
 const initialState = checkSavedDiagram();
 
-const evaluateFormula = (formula, variables, relations) => {
-  try {
-    const func = new Function('variables', 'relations', `return ${formula};`);
-    return func(variables, relations);
-  } catch (error) {
-    console.error("Error evaluating formula: ", formula, error);
-    return null;
-  }
-};
-
 const evaluateRelation = (relation, variables, relations) => {
   return ( {
     id: relation.id,
@@ -63,6 +54,10 @@ const evaluateAllRelations = (relations, variables) => {
 
   for (const [id, relation] of Object.entries(relations)) {
     updatedRelations[id] = evaluateRelation(relation, variables, relations);
+  }
+
+  if (JSON.stringify(updatedRelations) !== JSON.stringify(relations)) {
+    return evaluateAllRelations(updatedRelations, variables);
   }
 
   return updatedRelations;
@@ -94,13 +89,14 @@ const diagramReducer = (state = initialState, action) => {
         ...state,
         relations: [...state.relations, action.payload],
       };
-    case UPDATE_RELATION:
-      return {
-        ...state,
-        relations: state.relations.map(relation =>
-          relation.id === action.payload.id ? action.payload : relation
-        ),
-      };
+      case 'UPDATE_RELATION':
+        return {
+          ...state,
+          relations: {
+            ...state.relations,
+            [action.payload.id]: action.payload,
+          },
+        };
     case DELETE_RELATION:
       return {
         ...state,
