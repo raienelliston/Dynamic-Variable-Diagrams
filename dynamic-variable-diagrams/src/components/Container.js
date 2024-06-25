@@ -1,4 +1,3 @@
-// src/components/Container.js
 import React from 'react';
 import { useDispatch } from 'react-redux';
 import { updateContainer, selectItem } from '../store/actions';
@@ -26,7 +25,7 @@ const ContainerContainer = styled.div`
 
 const Container = ({ id, name, text, x, y }) => {
   const dispatch = useDispatch();
-  
+
   const [ { isDragging } , drag] = useDrag({
     type: ItemTypes.CONTAINER,
     item: { id, name, x, y },

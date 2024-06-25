@@ -1,7 +1,7 @@
 import React, { useState }from "react";
 import styled from "styled-components";
 import { useDispatch } from "react-redux";
-import { addContainer, updateContainer, updateRelation } from "../store/actions";
+import { addContainer, updateContainer, updateRelation, updateVariable, addVariable, addRelation } from "../store/actions";
 import { useSelector } from "react-redux";
 
 const OverlayContainer = styled.div`
@@ -82,7 +82,11 @@ const Overlay = () => {
 
         const dispacth = useDispatch();
         const [ newName, setNewName ] = useState('');
+        const [ newVariableName, setNewVariableName ] = useState('');
         const selectedContainer = containers.find((container) => container.id === selected);
+        const relations = useSelector((state) => state.diagram.relations);
+        const variables = useSelector((state) => state.diagram.variables);
+        const container = useSelector((state) => state.diagram.containers[selected]);
 
         const handleUpdateContainer = () => {
 
@@ -94,14 +98,11 @@ const Overlay = () => {
 
         };
 
-        const onChange = (event) => {
+        const onNameChange = (event) => {
             setNewName(event.target.value);
         };
 
         const RelationFormulas = () => {
-            const relations = useSelector((state) => state.diagram.relations);
-            const variables = useSelector((state) => state.diagram.variables);
-            const container = useSelector((state) => state.diagram.containers[selected]);
             const [editing, setEditing] = useState(null);
             const [newFormula, setNewFormula] = useState('');
 
@@ -140,23 +141,23 @@ const Overlay = () => {
 
               return (
                 <div key={relationId}>
-          {editing === relationId ? (
-            <div>
-              {relation.name}:
-              <input
-                type="text"
-                value={newFormula}
-                onChange={handleFormulaChange}
-              />
-              <button onClick={() => handleSave(relationId)}>Save</button>
-            </div>
-          ) : (
-            <div>
-                {relation.name}: 
-              <span onClick={() => handleEdit(relationId, relation.formula)}>
-                {relation.formula}
-              </span>
-            </div>
+                    {editing === relationId ? (
+                        <div>
+                            {relation.name}:
+                            <input
+                                type="text"
+                                value={newFormula}
+                                onChange={handleFormulaChange}
+                            />
+                            <button onClick={() => handleSave(relationId)}>Save</button>
+                        </div>
+                    ) : (
+                    <div>
+                        {relation.name}: 
+                    <span onClick={() => handleEdit(relationId, relation.formula)}>
+                        {relation.formula}
+                    </span>
+                    </div>
             )}
                 </div>
               );
@@ -169,37 +170,86 @@ const Overlay = () => {
             );
           }
 
+        const handleAddVariable = () => {
+            const newVariable = { id: variables.length, name: newVariableName, value: '1' };
+            const container = containers.find((container) => container.id === selected);
+            console.log(newVariable);
+            dispatch(addVariable(newVariable));
+            container.variables.push(newVariable.id);
+        }
+
+        const onVariableNameChange = (event) => {
+            setNewVariableName(event.target.value);
+        }
+
         const Variables = () => {
             const variables = useSelector((state) => state.diagram.variables);
             const container = useSelector((state) => state.diagram.containers[selected]);
+            const [editing, setEditing] = useState(null);
+            const [newValue, setNewValue] = useState('');
+
             if (!container) {
               return null;
             }
+
+            const handleEdit = (variableId, value) => {
+                setEditing(variableId);
+                setNewValue(value);
+            }
+
+            const handleValueChange = (event) => {
+                setNewValue(event.target.value);
+            }
+
+            const handleSave = (variableId) => {
+                dispacth(updateVariable({ ...variables[variableId], value: newValue }));
+                setEditing(null);
+            }
+            
             const containerVariables = container.variables.map((variableId) => {
               const variable = variables[variableId];
               return (
                 <div key={variableId}>
-                  {variable.name}: {variable.value}
+                {editing === variableId ? (
+                    <div>
+                        {variable.name}:
+                        <input
+                            type="text"
+                            value={newValue}
+                            onChange={handleValueChange}
+                        />
+                        <button onClick={() => handleSave(variableId)}>Save</button>
+                    </div>
+                ) : (
+                <div>
+                    {variable.name}: 
+                <span onClick={() => handleEdit(variableId, variable.value)}>
+                    {variable.value}
+                </span>
+                </div>
+            )}
                 </div>
               );
             });
         
             return (
-              <div>
-                {containerVariables}
-              </div>
+                <div>
+                    {containerVariables}
+                </div>
             );
           }
 
         return (
             <div>
                 <div>
-                    <input
-                        type="text"
-                        value={newName}
-                        onChange={(e) => onChange(e)}
-                    />
-                    <button onClick={handleUpdateContainer}>Update Container</button>
+                    <div>
+                        <input type="text" value={newName} onChange={(e) => onNameChange(e)}/>
+                        <button onClick={handleUpdateContainer}>Update Container</button>
+                    </div>
+                    <div>
+                        <input type="text" value={newVariableName} onChange={(e) => onVariableNameChange(e)} placeholder="Variable Name" />
+                        <button onClick={handleAddVariable}>Add Variable</button>
+                    </div>
                     <RelationFormulas />
                     <Variables />
                 </div>
