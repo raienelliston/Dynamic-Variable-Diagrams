@@ -125,6 +125,26 @@ const Container = ({ id, name, text, x, y, variableIds, relationIds }) => {
     setContextMenu(null);
   };
 
+  const determineAnchors = (sourcePos, targetPos) => {
+    const diffX = targetPos.x - sourcePos.x;
+    const diffY = targetPos.y - sourcePos.y;
+  
+    const absDiffX = Math.abs(diffX);
+    const absDiffY = Math.abs(diffY);
+  
+    let sourceAnchor, targetAnchor;
+  
+    if (diffX > 0) {
+      sourceAnchor = 'right';
+      targetAnchor = 'left';
+    } else {
+      sourceAnchor = 'left';
+      targetAnchor = 'right';
+    }
+  
+    return { sourceAnchor, targetAnchor };
+  };
+
   const getDependencies = (formula) => {
     const variableDependencies = [...formula.matchAll(/variables\[(\d+)\]/g)].map((match) => ({
       id: match[1],
@@ -137,7 +157,13 @@ const Container = ({ id, name, text, x, y, variableIds, relationIds }) => {
 
     const uniqueDependencies = [...new Set([...variableDependencies, ...relationDependencies])]; // Remove duplicates
 
-    return uniqueDependencies;
+    return uniqueDependencies.map((dep) => {
+      const { x: sourceX, y: sourceY } = { x: x, y: y };
+      const { x: targetX, y: targetY } = { x: 0, y: 0 };
+      console.log('source', sourceX, sourceY, 'target', targetX, targetY);
+      const { sourceAnchor, targetAnchor } = determineAnchors({ x: sourceX, y: sourceY }, { x: targetX, y: targetY });
+      return { ...dep, sourceAnchor, targetAnchor };
+    });
   };
 
   const Relations = () => {
@@ -151,10 +177,10 @@ const Container = ({ id, name, text, x, y, variableIds, relationIds }) => {
 
       const dependencies = getDependencies(relation.formula).map((dep, index) => ({
         targetId: `${dep.type}-${dep.id}`,
-        targetAnchor: 'top',
-        sourceAnchor: 'bottom',
-        style: { strokeColor: 'red', strokeWidth: 2 },
-        label: `dep-${dep.id}-${index}`,
+        targetAnchor: dep.targetAnchor,
+        sourceAnchor: dep.sourceAnchor,
+        style: { strokeColor: 'red', strokeWidth: 2, endShape: { arrow: { length: 10, width: 10 } } },
+        label: <div style={ {marginTop: '20px'} }> {`${renamedFormula}`} </div>
       }));
 
       console.log('depedencies', dependencies, relation)
