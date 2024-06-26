@@ -62,9 +62,10 @@ const Container = ({ id, name, text, x, y, variableIds, relationIds }) => {
   const [contextMenu, setContextMenu] = useState(null);
   const allVariables = useSelector((state) => state.diagram.variables);
   const allRelations = useSelector((state) => state.diagram.relations);
+  const allContainers = useSelector((state) => state.diagram.containers);
   const variables = variableIds.map(id => allVariables.find(variable => variable.id === id));
   const relations = relationIds.map(id => allRelations.find(relation => relation.id === id));
-  const [{isDragging}, drag] = useDrag({
+  const [{ isDragging }, drag] = useDrag({
     type: ItemTypes.CONTAINER,
     item: { id, name, x, y },
     collect: (monitor) => ({
@@ -73,16 +74,12 @@ const Container = ({ id, name, text, x, y, variableIds, relationIds }) => {
     end: (item, monitor) => {
       const delta = monitor.getDifferenceFromInitialOffset();
       if (delta) {
-      const newX = Math.round(x + delta.x);
-      const newY = Math.round(y + delta.y);
-      dispatch(updateContainer({ id, name, x: newX, y: newY }));
+        const newX = Math.round(x + delta.x);
+        const newY = Math.round(y + delta.y);
+        dispatch(updateContainer({ id, name, x: newX, y: newY }));
       }
     },
   });
-
-  if (id === undefined) {
-    return null;
-  }
 
   const handleClick = () => {
     dispatch(selectItem(id));
@@ -113,9 +110,9 @@ const Container = ({ id, name, text, x, y, variableIds, relationIds }) => {
   const determineAnchors = (sourcePos, targetPos) => {
     const diffX = targetPos.x - sourcePos.x;
     const diffY = targetPos.y - sourcePos.y;
-  
+
     let sourceAnchor, targetAnchor;
-  
+
     if (Math.abs(diffX) > Math.abs(diffY)) {
       if (diffX > 0) {
         sourceAnchor = 'right';
@@ -133,26 +130,22 @@ const Container = ({ id, name, text, x, y, variableIds, relationIds }) => {
         targetAnchor = 'bottom';
       }
     }
-  
+
     return { sourceAnchor, targetAnchor };
   };
 
-  const getTargetPosition = (targetId) => {
-    // Replace this with your logic to get target container position
-    // For example, if you have a list of containers with positions,
-    // you could find the target position based on targetId.
-    // Here, we're assuming you have access to all container positions somehow.
-    const targetContainer = document.getElementById(targetId);
-    if (targetContainer) {
-      const rect = targetContainer.getBoundingClientRect();
-      return {
-        x: rect.left + window.scrollX,
-        y: rect.top + window.scrollY,
-      };
-    }
-    return { x: 0, y: 0 }; // Default position if not found
-  };
+  const findContainerForDependency = (dependency, allVariables, allRelations) => {
 
+    if (dependency.type === 'variable') {
+      return allVariables.find(variable => variable.id === parseInt(dependency.id));
+    } else if (dependency.type === 'relation') {
+      return allRelations.find(relation => relation.id === parseInt(dependency.id));
+    }
+  
+    return null;
+  };
+  
+  // Usage in getDependencies
   const getDependencies = (formula) => {
     const variableDependencies = [...formula.matchAll(/variables\[(\d+)\]/g)].map((match) => ({
       id: match[1],
@@ -163,14 +156,22 @@ const Container = ({ id, name, text, x, y, variableIds, relationIds }) => {
       type: 'relation',
     }));
 
+    
+  
     const uniqueDependencies = [...new Set([...variableDependencies, ...relationDependencies])]; // Remove duplicates
-
+  
     return uniqueDependencies.map((dep) => {
+      const depContainer = findContainerForDependency(dep, allVariables, allRelations); // Pass necessary data
+  
+      if (!depContainer) return null; // Handle cases where container isn't found
+  
       const { x: sourceX, y: sourceY } = { x: x, y: y };
-      const { x: targetX, y: targetY } = getTargetPosition(`${dep.type}-${dep.id}`);
+      const { x: targetX, y: targetY } = { x: depContainer.x, y: depContainer.y }; // Use found container coordinates
+  
       const { sourceAnchor, targetAnchor } = determineAnchors({ x: sourceX, y: sourceY }, { x: targetX, y: targetY });
+  
       return { ...dep, sourceAnchor, targetAnchor };
-    });
+    }).filter(dep => dep !== null); // Filter out null entries
   };
 
   const Relations = () => {
