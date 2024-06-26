@@ -27,6 +27,8 @@ const ContainerContainer = styled.div`
   position: absolute;
   pointer-events: auto;
   transform: translate(${(props) => props.x}px, ${(props) => props.y}px);
+  opacity: ${(props) => (props.isDragging ? 0.5 : 1)};
+  z-index: ${(props) => (props.isDragging ? 1000 : 1)};
   );
 `;
 
@@ -71,7 +73,7 @@ const Container = ({ id, name, text, x, y, variableIds, relationIds }) => {
 
   console.log('all variables', allVariables);
 
-  const [, drag] = useDrag({
+  const [{isDragging}, drag] = useDrag({
     type: ItemTypes.CONTAINER,
     item: { id, name, x, y },
     collect: (monitor) => ({
@@ -79,9 +81,11 @@ const Container = ({ id, name, text, x, y, variableIds, relationIds }) => {
     }),
     end: (item, monitor) => {
       const delta = monitor.getDifferenceFromInitialOffset();
+      if (delta) {
       const newX = Math.round(x + delta.x);
       const newY = Math.round(y + delta.y);
       dispatch(updateContainer({ id, name, x: newX, y: newY }));
+      }
     },
   });
 
@@ -159,7 +163,7 @@ const Container = ({ id, name, text, x, y, variableIds, relationIds }) => {
         <ArcherElement
           id={`relation-${relation.id}`}
           relations={dependencies}
-        >
+          key={`relation-${relation.id}`}>
           <Relation key={`relation-${relation.id}`} onContextMenu={(e) => handleContextMenu(e, 'relation', relation)}>
             {relation.name} : {renamedFormula} = {relation.value}
           </Relation>
@@ -201,7 +205,7 @@ const Container = ({ id, name, text, x, y, variableIds, relationIds }) => {
   };
 
   return (
-        <ContainerContainer onClick={handleClick} ref={drag} x={x} y={y}>
+        <ContainerContainer onClick={handleClick} ref={drag} x={x} y={y} isDragging={isDragging}>
         <h1> {name} </h1> 
         {text}
         <Relations />

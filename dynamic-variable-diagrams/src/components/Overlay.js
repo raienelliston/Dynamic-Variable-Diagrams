@@ -218,7 +218,15 @@ const Overlay = () => {
                 return;
             }
 
-            const newRelation = { id: Object.keys(relations).length, name: newRelationName, formula: newRelationFormula };
+            const updatedFormula = newRelationFormula.replace(/(\b\w+\b)/g, (match) => {
+                const variable = variables.find((variable) => variable.name === match);
+                if (variable) return `variables[${variable.id}]`;
+                const relation = relations.find((relation) => relation.name === match);
+                if (relation) return `relations[${relation.id}]`;
+                return match;
+            });
+
+            const newRelation = { id: Object.keys(relations).length, name: newRelationName, formula: updatedFormula };
             dispatch(addRelation(newRelation));
             dispatch(updateContainer({ ...selectedContainer, relations: [...selectedContainer.relations, newRelation.id] }));
         };

@@ -89,7 +89,7 @@ const Diagram = () => {
 
   return (
     <div ref={drop}>
-      <ArcherContainer strokeColor="red">
+      {/* <ArcherContainer strokeColor="red"> */}
         {containers.map((container) => (
         <Container
           key={container.id}
@@ -101,7 +101,7 @@ const Diagram = () => {
           y={container.y}
         />
       ))}
-      </ArcherContainer>
+      {/* </ArcherContainer> */}
     </div>
   );
 };

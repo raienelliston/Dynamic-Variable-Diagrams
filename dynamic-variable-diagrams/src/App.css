@@ -40,6 +40,10 @@
   overflow: visible;
 }
 
+.custom-archer-container {
+  position: static !important;
+}
+
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);
