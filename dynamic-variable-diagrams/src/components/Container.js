@@ -150,13 +150,16 @@ const Container = ({ id, name, text, x, y, variableIds, relationIds }) => {
         targetAnchor: 'top',
         sourceAnchor: 'bottom',
         style: { strokeColor: 'red', strokeWidth: 2 },
-        key: `${relation.id}-${dep.id}-${index}`,
+        label: `dep-${dep.id}-${index}`,
       }));
 
-      console.log(dependencies, relation)
+      console.log('depedencies', dependencies, relation)
 
       return (
-        <ArcherElement id={`relation-${relation.id}`} relations={dependencies} key={`relation-${relation.id}`}>
+        <ArcherElement
+          id={`relation-${relation.id}`}
+          relations={dependencies}
+        >
           <Relation key={`relation-${relation.id}`} onContextMenu={(e) => handleContextMenu(e, 'relation', relation)}>
             {relation.name} : {renamedFormula} = {relation.value}
           </Relation>

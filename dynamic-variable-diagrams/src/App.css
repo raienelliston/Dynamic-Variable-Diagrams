@@ -28,6 +28,18 @@
   color: #61dafb;
 }
 
+.react-archer-arrow {
+  z-index: 1000;
+}
+
+.react-archer-label {
+  z-index: 1000; 
+}
+
+.react-archer-container {
+  overflow: visible;
+}
+
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);
