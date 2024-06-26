@@ -122,7 +122,18 @@ const Container = ({ id, name, text, x, y, variableIds, relationIds }) => {
   const getDependencies = (formula) => {
     const variableDependencies = [...formula.matchAll(/variables\[(\d+)\]/g)].map(match => match[1]);
     const relationDependencies = [...formula.matchAll(/relations\[(\d+)\]/g)].map(match => match[1]);
-    return [...variableDependencies, ...relationDependencies];
+    const uniqueDependencies = [...new Set([...variableDependencies, ...relationDependencies])];
+    return uniqueDependencies.filter(depId => !variableIds.includes(parseInt(depId)) && !relationIds.includes(parseInt(depId)));
+  };
+
+  const filterDependencies = (dependencies, type) => {
+    return dependencies.filter((depId) => {
+      if (type === 'variable') {
+        return allVariables.find(variable => variable.id === parseInt(depId));
+      } else if (type === 'relation') {
+        return allRelations.find(relation => relation.id === parseInt(depId));
+      }
+    });
   };
 
   const Relations = () => {
@@ -132,21 +143,25 @@ const Container = ({ id, name, text, x, y, variableIds, relationIds }) => {
     }
 
     const containerRelations = relations.map((relation) => {
+      const renamedFormula = relation.formula
+        .replace(/variables\[(\d+)\]/g, (match, id) => allVariables.find(variable => variable.id === parseInt(id)).name)
+        .replace(/relations\[(\d+)\]/g, (match, id) => allRelations.find(relation => relation.id === parseInt(id)).name);
 
-      const renamedFormula = relation.formula.replace(/variables\[(\d+)\]/g, (match, id) => allVariables.find(variable => variable.id === parseInt(id)).name).replace(/relations\[(\d+)\]/g, (match, id) => allRelations.find(relation => relation.id === parseInt(id)).name);
-
-      const dependencies = getDependencies(relation.formula).map(depId => ({
+      const dependencies = getDependencies(relation.formula).map((depId, index) => ({
         targetId: `container-${id}`,
         targetAnchor: 'top',
         sourceAnchor: 'bottom',
         style: { strokeColor: 'red', strokeWidth: 2 },
+        key: `${relation.id}-${depId}-${index}`,
       }));
 
+      console.log(dependencies, relation)
+
       return (
-        <ArcherElement id={`relation-${relation.id}`} relations={dependencies} key={relation.id}>
-        <Relation key={relation.Id} onContextMenu={(e) => handleContextMenu(e, 'relation', relation)}>
-          {relation.name} {" : "} {renamedFormula} {" = "} {relation.value}
-        </Relation>
+        <ArcherElement id={`relation-${relation.id}`} relations={dependencies} key={`relation-${relation.id}`}>
+          <Relation key={`relation-${relation.id}`} onContextMenu={(e) => handleContextMenu(e, 'relation', relation)}>
+            {relation.name} : {renamedFormula} = {relation.value}
+          </Relation>
         </ArcherElement>
       );
     });
@@ -168,7 +183,7 @@ const Container = ({ id, name, text, x, y, variableIds, relationIds }) => {
     const containerVariables = variables.map((variable) => {
       console.log('variable', variable);
       return (
-        <ArcherContainer id={`variable-${variable.id}`} key={variable.id}>
+        <ArcherContainer id={`variable-${variable.id}`} key={`variable-${variable.id}`}>
         <Variable key={variable.Id} onContextMenu={(e) => handleContextMenu(e, 'variable', variable)}>
           {variable.name} {" : "} {variable.value}
         </Variable>
@@ -185,7 +200,7 @@ const Container = ({ id, name, text, x, y, variableIds, relationIds }) => {
   };
 
   return (
-    <ArcherContainer style={ {pointerEvents: "none" } } id={`container-${id}`}>
+    <ArcherContainer id={`container-${id}`}>
       <ContainerContainer onClick={handleClick} ref={drag} x={x} y={y} style={{ opacity: isDragging ? 0.5 : 1 }}>
         <h1> {name} </h1> 
         {text}
