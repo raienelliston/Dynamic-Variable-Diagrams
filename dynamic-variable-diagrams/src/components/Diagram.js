@@ -13,6 +13,7 @@ const DiagramWrapper = styled.div`
   width: 100%;
   height: 100%;
   position: relative;
+  background-color: white; /* Added for visibility */
 `;
 
 const Diagram = () => {
@@ -33,9 +34,9 @@ const Diagram = () => {
 
   return (
     <DiagramWrapper ref={drop}>
-      <ArcherContainer strokeColor="red" >
+      <ArcherContainer strokeColor="red" style={{ border: '1px solid black', padding: '10px', zIndex: '10' }} >
         {containers.map((container) => (
-        <Container {...container} variableIds={container.variables} relationIds={container.relations} />
+        <Container {...container} key={container.id} variableIds={container.variables} relationIds={container.relations} />
       ))}
       </ArcherContainer>
     </DiagramWrapper>

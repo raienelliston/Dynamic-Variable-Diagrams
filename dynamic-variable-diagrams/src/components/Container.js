@@ -71,15 +71,17 @@ const Container = ({ id, name, text, x, y, variableIds, relationIds }) => {
 
   console.log('all variables', allVariables);
 
-  const [ { isDragging } , drag] = useDrag({
+  const [, drag] = useDrag({
     type: ItemTypes.CONTAINER,
     item: { id, name, x, y },
     collect: (monitor) => ({
-        isDragging: monitor.isDragging(),
-      }),
-      item: () => {
-      dispatch(selectItem(id));
-      return { id, name, x, y };
+      isDragging: monitor.isDragging(),
+    }),
+    end: (item, monitor) => {
+      const delta = monitor.getDifferenceFromInitialOffset();
+      const newX = Math.round(x + delta.x);
+      const newY = Math.round(y + delta.y);
+      dispatch(updateContainer({ id, name, x: newX, y: newY }));
     },
   });
 
@@ -120,20 +122,18 @@ const Container = ({ id, name, text, x, y, variableIds, relationIds }) => {
   };
 
   const getDependencies = (formula) => {
-    const variableDependencies = [...formula.matchAll(/variables\[(\d+)\]/g)].map(match => match[1]);
-    const relationDependencies = [...formula.matchAll(/relations\[(\d+)\]/g)].map(match => match[1]);
-    const uniqueDependencies = [...new Set([...variableDependencies, ...relationDependencies])];
-    return uniqueDependencies.filter(depId => !variableIds.includes(parseInt(depId)) && !relationIds.includes(parseInt(depId)));
-  };
+    const variableDependencies = [...formula.matchAll(/variables\[(\d+)\]/g)].map((match) => ({
+      id: match[1],
+      type: 'variable',
+    }));
+    const relationDependencies = [...formula.matchAll(/relations\[(\d+)\]/g)].map((match) => ({
+      id: match[1],
+      type: 'relation',
+    }));
 
-  const filterDependencies = (dependencies, type) => {
-    return dependencies.filter((depId) => {
-      if (type === 'variable') {
-        return allVariables.find(variable => variable.id === parseInt(depId));
-      } else if (type === 'relation') {
-        return allRelations.find(relation => relation.id === parseInt(depId));
-      }
-    });
+    const uniqueDependencies = [...new Set([...variableDependencies, ...relationDependencies])]; // Remove duplicates
+
+    return uniqueDependencies;
   };
 
   const Relations = () => {
@@ -143,16 +143,14 @@ const Container = ({ id, name, text, x, y, variableIds, relationIds }) => {
     }
 
     const containerRelations = relations.map((relation) => {
-      const renamedFormula = relation.formula
-        .replace(/variables\[(\d+)\]/g, (match, id) => allVariables.find(variable => variable.id === parseInt(id)).name)
-        .replace(/relations\[(\d+)\]/g, (match, id) => allRelations.find(relation => relation.id === parseInt(id)).name);
+      const renamedFormula = relation.formula.replace(/variables\[(\d+)\]/g, (match, id) => allVariables.find(variable => variable.id === parseInt(id)).name).replace(/relations\[(\d+)\]/g, (match, id) => allRelations.find(relation => relation.id === parseInt(id)).name);
 
-      const dependencies = getDependencies(relation.formula).map((depId, index) => ({
-        targetId: `container-${id}`,
+      const dependencies = getDependencies(relation.formula).map((dep, index) => ({
+        targetId: `${dep.type}-${dep.id}`,
         targetAnchor: 'top',
         sourceAnchor: 'bottom',
         style: { strokeColor: 'red', strokeWidth: 2 },
-        key: `${relation.id}-${depId}-${index}`,
+        key: `${relation.id}-${dep.id}-${index}`,
       }));
 
       console.log(dependencies, relation)
@@ -183,11 +181,11 @@ const Container = ({ id, name, text, x, y, variableIds, relationIds }) => {
     const containerVariables = variables.map((variable) => {
       console.log('variable', variable);
       return (
-        <ArcherContainer id={`variable-${variable.id}`} key={`variable-${variable.id}`}>
+        <ArcherElement id={`variable-${variable.id}`} key={`variable-${variable.id}`}>
         <Variable key={variable.Id} onContextMenu={(e) => handleContextMenu(e, 'variable', variable)}>
           {variable.name} {" : "} {variable.value}
         </Variable>
-        </ArcherContainer>
+        </ArcherElement>
       );
     });
 
@@ -200,8 +198,7 @@ const Container = ({ id, name, text, x, y, variableIds, relationIds }) => {
   };
 
   return (
-    <ArcherContainer id={`container-${id}`}>
-      <ContainerContainer onClick={handleClick} ref={drag} x={x} y={y} style={{ opacity: isDragging ? 0.5 : 1 }}>
+        <ContainerContainer onClick={handleClick} ref={drag} x={x} y={y}>
         <h1> {name} </h1> 
         {text}
         <Relations />
@@ -214,7 +211,6 @@ const Container = ({ id, name, text, x, y, variableIds, relationIds }) => {
         />
       )}
     </ContainerContainer>
-  </ArcherContainer>
     );
 };
 
