@@ -131,6 +131,8 @@ const Container = ({ id, name, text, x, y, variableIds, relationIds }) => {
 
     const containerRelations = relations.map((relation) => {
 
+      const renamedFormula = relation.formula.replace(/variables\[(\d+)\]/g, (match, id) => allVariables.find(variable => variable.id === parseInt(id)).name).replace(/relations\[(\d+)\]/g, (match, id) => allRelations.find(relation => relation.id === parseInt(id)).name);
+
       const dependencies = getDependencies(relation.formula).map(depId => ({
         targetId: `container-${id}`,
         targetAnchor: 'top',
@@ -141,7 +143,7 @@ const Container = ({ id, name, text, x, y, variableIds, relationIds }) => {
       return (
         <ArcherElement id={`relation-${relation.id}`} relations={dependencies} key={relation.id}>
         <Relation key={relation.Id} onContextMenu={(e) => handleContextMenu(e, 'relation', relation)}>
-          {relation.name} {" : "} {relation.formula} {" = "} {relation.value}
+          {relation.name} {" : "} {renamedFormula} {" = "} {relation.value}
         </Relation>
         </ArcherElement>
       );
@@ -164,9 +166,11 @@ const Container = ({ id, name, text, x, y, variableIds, relationIds }) => {
     const containerVariables = variables.map((variable) => {
       console.log('variable', variable);
       return (
+        <ArcherContainer id={`variable-${variable.id}`} key={variable.id}>
         <Variable key={variable.Id} onContextMenu={(e) => handleContextMenu(e, 'variable', variable)}>
           {variable.name} {" : "} {variable.value}
         </Variable>
+        </ArcherContainer>
       );
     });
 
@@ -179,7 +183,8 @@ const Container = ({ id, name, text, x, y, variableIds, relationIds }) => {
   };
 
   return (
-    <ContainerContainer onClick={handleClick} ref={drag} x={x} y={y} style={{ opacity: isDragging ? 0.5 : 1 }}>
+    <ArcherContainer onClick={handleClick} id={`container-${id}`}>
+      <ContainerContainer ref={drag} x={x} y={y} style={{ opacity: isDragging ? 0.5 : 1 }}>
         <h1> {name} </h1> 
         {text}
         <Relations />
@@ -192,7 +197,8 @@ const Container = ({ id, name, text, x, y, variableIds, relationIds }) => {
         />
       )}
     </ContainerContainer>
-  );
+  </ArcherContainer>
+    );
 };
 
 export default Container;

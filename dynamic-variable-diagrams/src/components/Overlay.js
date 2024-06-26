@@ -136,24 +136,16 @@ const Overlay = () => {
 
             const handleSave = (relationId) => {
                 
-                dispatch(updateRelation({ ...relations[relationId], formula: newFormula }));
+                dispatch(updateRelation({ ...relations[relationId], formula: newFormula.filter(/variables\[(\d+)\]/g, (match, id) => variables.find((variable) => variable.id === parseInt(id)).name).replace(/relations\[(\d+)\]/g, (match, id) => relations.find((relation) => relation.id === parseInt(id)).name)}));
                 setEditing(null);
             };
 
             console.log(JSON.stringify(container));
             const containerRelations = container.relations.map((relationId) => {
               const relation = relations.find((relation) => relation.id === relationId);
-              var value = relation.formula;
 
-              for (const [key, variable] of Object.entries(variables)) {
-                const regex = new RegExp(`variables\\[${key}\\]`, 'g');
-                value = value.replace(regex, variable.name);
-              }
 
-              for (const [key, relation] of Object.entries(relations)) {
-                const regex = new RegExp(`relations\\[${key}\\]`, 'g');
-                value = value.replace(regex, relation.name);
-              }
+              const renamedFormula = relation.formula.replace(/variables\[(\d+)\]/g, (match, id) => variables.find((variable) => variable.id === parseInt(id)).name).replace(/relations\[(\d+)\]/g, (match, id) => relations.find((relation) => relation.id === parseInt(id)).name);
 
               return (
                 <div key={relationId}>
@@ -170,8 +162,8 @@ const Overlay = () => {
                     ) : (
                     <div>
                         {relation.name}: 
-                    <span onClick={() => handleEdit(relationId, relation.formula)}>
-                        {relation.formula}
+                    <span onClick={() => handleEdit(relationId, renamedFormula)}>
+                        {renamedFormula}
                     </span>
                     </div>
             )}
