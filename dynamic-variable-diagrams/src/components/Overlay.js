@@ -135,8 +135,16 @@ const Overlay = () => {
             };
 
             const handleSave = (relationId) => {
-                
-                dispatch(updateRelation({ ...relations[relationId], formula: newFormula.filter(/variables\[(\d+)\]/g, (match, id) => variables.find((variable) => variable.id === parseInt(id)).name).replace(/relations\[(\d+)\]/g, (match, id) => relations.find((relation) => relation.id === parseInt(id)).name)}));
+                const updatedFormula = newFormula
+                    .replace(/(\b\w+\b)/g, (match) => {
+                    const variable = variables.find((variable) => variable.name === match);
+                    if (variable) return `variables[${variable.id}]`;
+                    const relation = relations.find((relation) => relation.name === match);
+                    if (relation) return `relations[${relation.id}]`;
+                    return match;
+                    });
+
+                dispatch(updateRelation({ ...relations[relationId], formula: updatedFormula }));
                 setEditing(null);
             };
 
@@ -185,6 +193,11 @@ const Overlay = () => {
                 return;
             }
 
+            if (variables.find((variable) => variable.name === newVariableName)) {
+                alert('Variable already exists');
+                return;
+            }
+
             console.log(variables)
             const newVariable = { id: variables.length, name: newVariableName, value: newVariableValue };
             const container = containers.find((container) => container.id === selected);
@@ -197,6 +210,11 @@ const Overlay = () => {
 
             if (!newRelationName) {
                 alert('Please enter a name');
+                return;
+            }
+
+            if (relations.find((relation) => relation.name === newRelationName)) {
+                alert('Relation already exists');
                 return;
             }
 

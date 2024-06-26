@@ -25,6 +25,7 @@ const ContainerContainer = styled.div`
   justify-content: center;
   cursor: pointer;
   position: absolute;
+  pointer-events: auto;
   transform: translate(${(props) => props.x}px, ${(props) => props.y}px);
   );
 `;
@@ -66,6 +67,7 @@ const Container = ({ id, name, text, x, y, variableIds, relationIds }) => {
   const allRelations = useSelector((state) => state.diagram.relations);
   const variables = variableIds.map(id => allVariables.find(variable => variable.id === id));
   const relations = relationIds.map(id => allRelations.find(relation => relation.id === id));
+  
 
   console.log('all variables', allVariables);
 
@@ -183,8 +185,8 @@ const Container = ({ id, name, text, x, y, variableIds, relationIds }) => {
   };
 
   return (
-    <ArcherContainer onClick={handleClick} id={`container-${id}`}>
-      <ContainerContainer ref={drag} x={x} y={y} style={{ opacity: isDragging ? 0.5 : 1 }}>
+    <ArcherContainer style={ {pointerEvents: "none" } } id={`container-${id}`}>
+      <ContainerContainer onClick={handleClick} ref={drag} x={x} y={y} style={{ opacity: isDragging ? 0.5 : 1 }}>
         <h1> {name} </h1> 
         {text}
         <Relations />
