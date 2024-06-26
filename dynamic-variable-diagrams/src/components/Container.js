@@ -1,14 +1,11 @@
-import React from 'react';
-import { useState } from 'react';
-import { useDispatch } from 'react-redux';
-import { updateContainer, selectItem, deleteVariable, deleteRelation } from '../store/actions';
-import { useSelector } from 'react-redux';
+import React, { useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { updateContainer, selectItem } from '../store/actions';
 import { useDrag } from 'react-dnd';
 import { ItemTypes } from './ItemTypes';
 import styled from 'styled-components';
 import ContextMenu from './ContextMenu';
-import { ArcherContainer, ArcherElement } from 'react-archer';
-import './Container.css';
+import { ArcherElement } from 'react-archer';
 
 const ContainerContainer = styled.div`
   width: auto;
@@ -29,7 +26,6 @@ const ContainerContainer = styled.div`
   transform: translate(${(props) => props.x}px, ${(props) => props.y}px);
   opacity: ${(props) => (props.isDragging ? 0.5 : 1)};
   z-index: ${(props) => (props.isDragging ? 1000 : 1)};
-  );
 `;
 
 const RelationContainer = styled.div`
@@ -44,7 +40,7 @@ const Relation = styled.div`
   padding: 5px;
   margin: 5px;
   border-radius: 5px;
-  `;
+`;
 
 const VariableContainer = styled.div`
   display: flex;
@@ -54,7 +50,7 @@ const VariableContainer = styled.div`
   justify-content: center;
 `;
 
-const Variable = styled.div` 
+const Variable = styled.div`
   display: flex;
   background-color: lightcoral;
   padding: 5px;
@@ -62,17 +58,12 @@ const Variable = styled.div`
 `;
 
 const Container = ({ id, name, text, x, y, variableIds, relationIds }) => {
-  console.log('Container', id, name, x, y, variableIds, relationIds)
   const dispatch = useDispatch();
   const [contextMenu, setContextMenu] = useState(null);
   const allVariables = useSelector((state) => state.diagram.variables);
   const allRelations = useSelector((state) => state.diagram.relations);
   const variables = variableIds.map(id => allVariables.find(variable => variable.id === id));
   const relations = relationIds.map(id => allRelations.find(relation => relation.id === id));
-  
-
-  console.log('all variables', allVariables);
-
   const [{isDragging}, drag] = useDrag({
     type: ItemTypes.CONTAINER,
     item: { id, name, x, y },
@@ -89,8 +80,6 @@ const Container = ({ id, name, text, x, y, variableIds, relationIds }) => {
     },
   });
 
-  console.log('Container', id, name, x, y, variables, relations);
-
   if (id === undefined) {
     return null;
   }
@@ -101,15 +90,11 @@ const Container = ({ id, name, text, x, y, variableIds, relationIds }) => {
 
   const handleContextMenu = (event, type, object) => {
     event.preventDefault();
-    console.log('right click');
-
-    console.log('type', type, 'id', id);
-
     const deleteItem = (type) => {
       if (type === 'relation') {
-        dispatch({ type: 'DELETE_RELATION', payload: { id: object.id } });;
+        dispatch({ type: 'DELETE_RELATION', payload: { id: object.id } });
       } else if (type === 'variable') {
-        dispatch({ type: 'DELETE_VARIABLE', payload: { id: object.id } });;
+        dispatch({ type: 'DELETE_VARIABLE', payload: { id: object.id } });
       }
     };
 
@@ -118,7 +103,7 @@ const Container = ({ id, name, text, x, y, variableIds, relationIds }) => {
       items: [
         { label: 'Delete', onClick: () => deleteItem(type) },
       ],
-    })
+    });
   };
 
   const handleCloseContextMenu = () => {
@@ -129,20 +114,43 @@ const Container = ({ id, name, text, x, y, variableIds, relationIds }) => {
     const diffX = targetPos.x - sourcePos.x;
     const diffY = targetPos.y - sourcePos.y;
   
-    const absDiffX = Math.abs(diffX);
-    const absDiffY = Math.abs(diffY);
-  
     let sourceAnchor, targetAnchor;
   
-    if (diffX > 0) {
-      sourceAnchor = 'right';
-      targetAnchor = 'left';
+    if (Math.abs(diffX) > Math.abs(diffY)) {
+      if (diffX > 0) {
+        sourceAnchor = 'right';
+        targetAnchor = 'left';
+      } else {
+        sourceAnchor = 'left';
+        targetAnchor = 'right';
+      }
     } else {
-      sourceAnchor = 'left';
-      targetAnchor = 'right';
+      if (diffY > 0) {
+        sourceAnchor = 'bottom';
+        targetAnchor = 'top';
+      } else {
+        sourceAnchor = 'top';
+        targetAnchor = 'bottom';
+      }
     }
   
     return { sourceAnchor, targetAnchor };
+  };
+
+  const getTargetPosition = (targetId) => {
+    // Replace this with your logic to get target container position
+    // For example, if you have a list of containers with positions,
+    // you could find the target position based on targetId.
+    // Here, we're assuming you have access to all container positions somehow.
+    const targetContainer = document.getElementById(targetId);
+    if (targetContainer) {
+      const rect = targetContainer.getBoundingClientRect();
+      return {
+        x: rect.left + window.scrollX,
+        y: rect.top + window.scrollY,
+      };
+    }
+    return { x: 0, y: 0 }; // Default position if not found
   };
 
   const getDependencies = (formula) => {
@@ -159,17 +167,15 @@ const Container = ({ id, name, text, x, y, variableIds, relationIds }) => {
 
     return uniqueDependencies.map((dep) => {
       const { x: sourceX, y: sourceY } = { x: x, y: y };
-      const { x: targetX, y: targetY } = { x: 0, y: 0 };
-      console.log('source', sourceX, sourceY, 'target', targetX, targetY);
+      const { x: targetX, y: targetY } = getTargetPosition(`${dep.type}-${dep.id}`);
       const { sourceAnchor, targetAnchor } = determineAnchors({ x: sourceX, y: sourceY }, { x: targetX, y: targetY });
       return { ...dep, sourceAnchor, targetAnchor };
     });
   };
 
   const Relations = () => {
-
-    if (relations[0] === undefined) {
-      return (null);
+    if (!relations || relations.length === 0) {
+      return null;
     }
 
     const containerRelations = relations.map((relation) => {
@@ -180,16 +186,15 @@ const Container = ({ id, name, text, x, y, variableIds, relationIds }) => {
         targetAnchor: dep.targetAnchor,
         sourceAnchor: dep.sourceAnchor,
         style: { strokeColor: 'red', strokeWidth: 2, endShape: { arrow: { length: 10, width: 10 } } },
-        label: <div style={ {marginTop: '20px'} }> {`${renamedFormula}`} </div>
+        label: <div style={{ marginTop: '20px' }}>{`${renamedFormula}`}</div>,
       }));
-
-      console.log('depedencies', dependencies, relation)
 
       return (
         <ArcherElement
           id={`relation-${relation.id}`}
           relations={dependencies}
-          key={`relation-${relation.id}`}>
+          key={`relation-${relation.id}`}
+        >
           <Relation key={`relation-${relation.id}`} onContextMenu={(e) => handleContextMenu(e, 'relation', relation)}>
             {relation.name} : {renamedFormula} = {relation.value}
           </Relation>
@@ -199,28 +204,24 @@ const Container = ({ id, name, text, x, y, variableIds, relationIds }) => {
 
     return (
       <RelationContainer>
-        <h2 style={ {margin: "5px"}}> Relations </h2>
-        {containerRelations} 
+        <h2 style={{ margin: '5px' }}> Relations </h2>
+        {containerRelations}
       </RelationContainer>
     );
   };
 
   const Variables = () => {
-
-    if (variables[0] === undefined) {
-      return (null);
+    if (!variables || variables.length === 0) {
+      return null;
     }
-    
-    const containerVariables = variables.map((variable) => {
-      console.log('variable', variable);
-      return (
-        <ArcherElement id={`variable-${variable.id}`} key={`variable-${variable.id}`}>
-        <Variable key={variable.Id} onContextMenu={(e) => handleContextMenu(e, 'variable', variable)}>
-          {variable.name} {" : "} {variable.value}
+
+    const containerVariables = variables.map((variable) => (
+      <ArcherElement id={`variable-${variable.id}`} key={`variable-${variable.id}`}>
+        <Variable key={variable.id} onContextMenu={(e) => handleContextMenu(e, 'variable', variable)}>
+          {variable.name} : {variable.value}
         </Variable>
-        </ArcherElement>
-      );
-    });
+      </ArcherElement>
+    ));
 
     return (
       <VariableContainer>
@@ -231,11 +232,11 @@ const Container = ({ id, name, text, x, y, variableIds, relationIds }) => {
   };
 
   return (
-        <ContainerContainer onClick={handleClick} ref={drag} x={x} y={y} isDragging={isDragging}>
-        <h1> {name} </h1> 
-        {text}
-        <Relations />
-        <Variables />
+    <ContainerContainer onClick={handleClick} ref={drag} x={x} y={y} isDragging={isDragging} id={`container-${id}`}>
+      <h1> {name} </h1>
+      {text}
+      <Relations />
+      <Variables />
       {contextMenu && (
         <ContextMenu
           items={contextMenu.items}
@@ -244,7 +245,7 @@ const Container = ({ id, name, text, x, y, variableIds, relationIds }) => {
         />
       )}
     </ContainerContainer>
-    );
+  );
 };
 
 export default Container;
