@@ -113,39 +113,39 @@ const Container = ({ id, name, text, x, y, variableIds, relationIds }) => {
 
     let sourceAnchor, targetAnchor;
 
-    if (Math.abs(diffX) > Math.abs(diffY)) {
-      if (diffX > 0) {
-        sourceAnchor = 'right';
-        targetAnchor = 'left';
-      } else {
-        sourceAnchor = 'left';
-        targetAnchor = 'right';
-      }
+    if (diffX > 0) {
+      sourceAnchor = 'right';
+      targetAnchor = 'left';
     } else {
-      if (diffY > 0) {
-        sourceAnchor = 'bottom';
-        targetAnchor = 'top';
-      } else {
-        sourceAnchor = 'top';
-        targetAnchor = 'bottom';
-      }
+      sourceAnchor = 'left';
+      targetAnchor = 'right';
     }
 
     return { sourceAnchor, targetAnchor };
   };
 
-  const findContainerForDependency = (dependency, allVariables, allRelations) => {
+  const findContainerForDependencyCoords = (dep, containers, currentContainerId) => {
 
-    if (dependency.type === 'variable') {
-      return allVariables.find(variable => variable.id === parseInt(dependency.id));
-    } else if (dependency.type === 'relation') {
-      return allRelations.find(relation => relation.id === parseInt(dependency.id));
+    const container = containers.find((container) => {
+      if (container.id === currentContainerId) {
+        return false; // Skip the current container
+      }
+      if (dep.type === 'variable' && container.variables.includes(parseInt(dep.id))) {
+        return true;
+      }
+      if (dep.type === 'relation' && container.relations.includes(parseInt(dep.id))) {
+        return true;
+      }
+      return false;
+    });
+
+    if (container) {
+      return { x: container.x, y: container.y };
     }
-  
+
     return null;
   };
-  
-  // Usage in getDependencies
+
   const getDependencies = (formula) => {
     const variableDependencies = [...formula.matchAll(/variables\[(\d+)\]/g)].map((match) => ({
       id: match[1],
@@ -156,22 +156,28 @@ const Container = ({ id, name, text, x, y, variableIds, relationIds }) => {
       type: 'relation',
     }));
 
-    
-  
-    const uniqueDependencies = [...new Set([...variableDependencies, ...relationDependencies])]; // Remove duplicates
-  
-    return uniqueDependencies.map((dep) => {
-      const depContainer = findContainerForDependency(dep, allVariables, allRelations); // Pass necessary data
-  
-      if (!depContainer) return null; // Handle cases where container isn't found
-  
-      const { x: sourceX, y: sourceY } = { x: x, y: y };
-      const { x: targetX, y: targetY } = { x: depContainer.x, y: depContainer.y }; // Use found container coordinates
-  
+    const uniqueDependencies = [...new Set([...variableDependencies, ...relationDependencies])];
+
+
+    const mappedDependencies = uniqueDependencies.map((dep) => {
+      const depContainer = findContainerForDependencyCoords(dep, allContainers, id);
+
+      if (!depContainer) {
+        return null;
+      }
+
+      const { x: sourceX, y: sourceY } = { x, y };
+      const { x: targetX, y: targetY } = depContainer;
+
       const { sourceAnchor, targetAnchor } = determineAnchors({ x: sourceX, y: sourceY }, { x: targetX, y: targetY });
-  
-      return { ...dep, sourceAnchor, targetAnchor };
-    }).filter(dep => dep !== null); // Filter out null entries
+
+      const result = { ...dep, sourceAnchor, targetAnchor };
+
+      return result;
+    }).filter(dep => dep !== null);
+
+
+    return mappedDependencies;
   };
 
   const Relations = () => {

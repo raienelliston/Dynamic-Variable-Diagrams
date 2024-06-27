@@ -103,13 +103,12 @@ const diagramReducer = (state = initialState, action) => {
         ),
       };
     case 'UPDATE_RELATION':
-        return {
-          ...state,
-          relations: {
-            ...state.relations,
-            [action.payload.id]: action.payload,
-          },
-        };
+      return {
+        ...state,
+        relations: state.relations.map(relation =>
+          relation.id === action.payload.id ? action.payload : relation
+        ),
+      };
     case DELETE_RELATION:
       return {
         ...state,

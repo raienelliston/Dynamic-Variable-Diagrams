@@ -143,6 +143,7 @@ const Overlay = () => {
                     if (relation) return `relations[${relation.id}]`;
                     return match;
                     });
+                console.log(updatedFormula);
 
                 dispatch(updateRelation({ ...relations[relationId], formula: updatedFormula }));
                 setEditing(null);
@@ -198,10 +199,8 @@ const Overlay = () => {
                 return;
             }
 
-            console.log(variables)
             const newVariable = { id: variables.length, name: newVariableName, value: newVariableValue };
             const container = containers.find((container) => container.id === selected);
-            console.log(newVariable);
             dispatch(addVariable(newVariable));
             container.variables.push(newVariable.id);
         }
@@ -251,13 +250,16 @@ const Overlay = () => {
             }
 
             const handleSave = (variableId) => {
+                
+                const value = parseFloat(eval(newValue));
+                
                 try {
-                    eval(newValue);
+                    eval(value);
                 } catch (e) {
                     alert('Invalid formula');
                     return;
                 }
-                dispatch(updateVariable({ ...variables[variableId], value: newValue }));
+                dispatch(updateVariable({ ...variables[variableId], value: value }));
                 setEditing(null);
             }
             
