@@ -72,6 +72,7 @@ const Overlay = () => {
     const dispatch = useDispatch();
     const selected = useSelector((state) => state.diagram.selected);
     var newName = '';
+    var newText = '';
 
     const handleAddContainer = () => {
 
@@ -79,8 +80,8 @@ const Overlay = () => {
             alert('Please enter a name');
             return;
         }
-
-        const newContainer = { id: containers.length, name: newName, text:"" , x:200, y:200, variables: [], relations: []};
+        console.log(newName);
+        const newContainer = { id: containers.length, name: newName, text:newText , x:200, y:200, variables: [], relations: []};
         console.log(newContainer);
         dispatch(addContainer(newContainer));
       };
@@ -199,10 +200,15 @@ const Overlay = () => {
                 return;
             }
 
+            if (relations.find((relation) => relation.name === newVariableName)) {
+                alert('Variable name already exists as a relation');
+                return;
+            }
+
             const newVariable = { id: variables.length, name: newVariableName, value: newVariableValue };
             const container = containers.find((container) => container.id === selected);
             dispatch(addVariable(newVariable));
-            container.variables.push(newVariable.id);
+            dispatch(updateContainer({ ...selectedContainer, variables: [...selectedContainer.variables, newVariable.id] }));
         }
 
         const handleAddRelation = () => {
@@ -337,6 +343,10 @@ const Overlay = () => {
         newName = event.target.value;
     };
 
+    const changeNewText = (event) => {
+        newText = event.target.value
+    }
+
     console.log(selected);
 
     return (
@@ -347,6 +357,7 @@ const Overlay = () => {
             </TopMenuBar>
             <LeftMenuBar>
                 <input type="text" onChange={changeNewName} placeholder="Container Name" />
+                <input type="text" onChange={changeNewText} placeholder="Container Text" />
                 <button onClick={handleAddContainer}>Add Container</button>
             </LeftMenuBar>
             <RightMenuBar>

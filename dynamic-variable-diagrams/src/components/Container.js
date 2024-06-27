@@ -176,6 +176,7 @@ const Container = ({ id, name, text, x, y, variableIds, relationIds }) => {
       return result;
     }).filter(dep => dep !== null);
 
+    console.log('Mapped Dependencies:', mappedDependencies);
 
     return mappedDependencies;
   };
@@ -192,8 +193,8 @@ const Container = ({ id, name, text, x, y, variableIds, relationIds }) => {
         targetId: `${dep.type}-${dep.id}`,
         targetAnchor: dep.targetAnchor,
         sourceAnchor: dep.sourceAnchor,
-        style: { strokeColor: 'red', strokeWidth: 2, endShape: { arrow: { length: 10, width: 10 } } },
-        label: <div style={{ marginTop: '20px' }}>{`${renamedFormula}`}</div>,
+        style: { strokeColor: 'red', startMarker: true, endMarker: false, strokeWidth: 2, endShape: { arrow: { length: 10, width: 10 } } },
+        label: <div style={{ backgroundColor: 'white', padding: '5px', border: '1px solid black', borderRadius: '5px' }}>{`${renamedFormula}`}</div>,
       }));
 
       return (

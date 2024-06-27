@@ -2,11 +2,17 @@
 import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import Container from './Container';
-import { updateContainer } from '../store/actions';
+import { updateContainer, selectItem } from '../store/actions';
 import styled from 'styled-components';
 import { useDrop } from 'react-dnd';
 import { ItemTypes } from './ItemTypes';
 import { ArcherElement } from 'react-archer';
+
+const DiagramWrapper = styled.div`
+  width: 100%;
+  height: 100%;
+  position: relative;
+`;
 
 const Diagram = () => {
   const containers = useSelector((state) => state.diagram.containers);
@@ -24,20 +30,25 @@ const Diagram = () => {
     },
   });
 
+  const onClick = () => {
+    dispatch(selectItem(null));
+  };
+
   return (
-    <div ref={drop}>
+    <DiagramWrapper ref={drop} onClick={onclick}>
         {containers.map((container) => (
         <Container
           key={container.id}
           id={container.id}
           name={container.name}
+          text={container.text}
           variableIds={container.variables}
           relationIds={container.relations}
           x={container.x}
           y={container.y}
         />
       ))}
-    </div>
+    </DiagramWrapper>
   );
 };
 
