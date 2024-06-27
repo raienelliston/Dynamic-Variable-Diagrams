@@ -113,12 +113,22 @@ const Container = ({ id, name, text, x, y, variableIds, relationIds }) => {
 
     let sourceAnchor, targetAnchor;
 
-    if (diffX > 0) {
-      sourceAnchor = 'right';
-      targetAnchor = 'left';
+    if (Math.abs(diffX) > Math.abs(diffY)) {
+      if (diffX > 0) {
+        sourceAnchor = 'right';
+        targetAnchor = 'left';
+      } else {
+        sourceAnchor = 'left';
+        targetAnchor = 'right';
+      }
     } else {
-      sourceAnchor = 'left';
-      targetAnchor = 'right';
+      if (diffY > 0) {
+        sourceAnchor = 'bottom';
+        targetAnchor = 'top';
+      } else {
+        sourceAnchor = 'top';
+        targetAnchor = 'bottom';
+      }
     }
 
     return { sourceAnchor, targetAnchor };

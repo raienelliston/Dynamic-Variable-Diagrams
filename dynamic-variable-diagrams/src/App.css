@@ -42,6 +42,7 @@
 
 .custom-archer-container {
   position: static !important;
+  pointer-events: auto;
 }
 
 @keyframes App-logo-spin {
